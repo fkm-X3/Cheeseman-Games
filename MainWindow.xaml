@@ -5,8 +5,137 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cheeseman_Games"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Cheeseman Games" Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#1a1a2e"
+        FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True">
 
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#e0e0e0" />
+        </Style>
+
+        <Style x:Key="GameCard" TargetType="Border">
+            <Setter Property="Background" Value="#16213e" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#2a2a4a" />
+        </Style>
+
+        <Style x:Key="ComingSoonCard" TargetType="Border">
+            <Setter Property="Background" Value="#16213e" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#2a2a4a" />
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#16213e" CornerRadius="16" Padding="24 20" Margin="0 0 0 30">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" FontSize="36" VerticalAlignment="Center">🧀</TextBlock>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16 0 0 0">
+                    <TextBlock Text="Cheeseman Games" FontSize="26" FontWeight="Bold"
+                               Foreground="#e8a838" />
+                    <TextBlock Text="A collection of classic games" FontSize="13"
+                               Foreground="#888" Margin="0 2 0 0" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="2" Text="v1.0" FontSize="12"
+                           Foreground="#555" VerticalAlignment="Bottom" Margin="0 0 0 4" />
+            </Grid>
+        </Border>
+
+        <!-- Game Grid -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      BorderThickness="0">
+            <ItemsControl x:Name="GamesList">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"
+                                   HorizontalAlignment="Center" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="260" Height="220" Margin="12"
+                                MouseLeftButtonDown="GameCard_Click">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource GameCard}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAvailable}" Value="True">
+                                            <Setter Property="Cursor" Value="Hand" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="#4a4a7a" />
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <TranslateTransform Y="-3" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                    <Setter Property="RenderTransform" Value="{x:Null}" />
+                                </Style>
+                            </Border.Style>
+
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Emoji + Name -->
+                                <StackPanel Grid.Row="0" Orientation="Horizontal"
+                                            VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding Emoji}" FontSize="28"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" FontSize="17"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center" Margin="10 0 0 0" />
+                                </StackPanel>
+
+                                <!-- Description -->
+                                <TextBlock Grid.Row="1" Text="{Binding Description}"
+                                           FontSize="13" Foreground="#999"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"
+                                           Margin="0 8 0 0" />
+
+                                <!-- Play Button -->
+                                <Border Grid.Row="2" CornerRadius="8"
+                                        Background="#e8a838" Height="34"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0 8 0 0">
+                                    <TextBlock Text="PLAY" FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="#1a1a2e"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </Window>
