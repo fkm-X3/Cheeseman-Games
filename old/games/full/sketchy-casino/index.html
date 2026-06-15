@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuckyWin Casino - Your Trusted Gaming Partner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 min-h-screen text-white">
+    
+    <!-- Fake "Loading" Screen with inflated numbers -->
+    <div id="fake-loading" class="fixed inset-0 bg-black z-50 flex items-center justify-center flex-col">
+        <div class="text-6xl mb-8 animate-pulse">🎰</div>
+        <div class="text-2xl mb-4">Connecting to Secure Servers...</div>
+        <div class="text-sm text-gray-400" id="fake-stats">
+            <p>Players online: <span class="text-green-400 font-bold">47,382</span></p>
+            <p>Won in last hour: <span class="text-yellow-400 font-bold">$2,847,293</span></p>
+        </div>
+    </div>
+
+    <!-- Fake "Winner" Notification -->
+    <div id="fake-winner-toast" class="fixed top-4 right-4 z-40 hidden">
+        <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-4 rounded-lg shadow-2xl border-2 border-yellow-300 animate-bounce">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🎉</div>
+                <div>
+                    <div class="font-bold text-lg">BIG WIN!</div>
+                    <div class="text-sm"><span id="fake-winner-name"></span> just won <span id="fake-winner-amount"></span>!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- "VIP" Badge popup -->
+    <div id="vip-popup" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center">
+        <div class="bg-gradient-to-br from-yellow-600 to-yellow-800 p-8 rounded-xl max-w-md text-center border-4 border-yellow-400 relative">
+            <button onclick="closeVipPopup()" class="absolute top-2 right-2 text-white text-2xl">&times;</button>
+            <div class="text-6xl mb-4">👑</div>
+            <h2 class="text-3xl font-bold mb-4">CONGRATULATIONS!</h2>
+            <p class="mb-4">You've been selected for <span class="text-yellow-300 font-bold">VIP STATUS</span>!</p>
+            <p class="text-sm mb-6 text-yellow-100">Get access to "better odds" and "exclusive bonuses"*</p>
+            <button onclick="closeVipPopup()" class="bg-white text-yellow-800 font-bold px-8 py-3 rounded-lg hover:scale-105 transition-transform">
+                CLAIM NOW
+            </button>
+            <p class="text-xs mt-4 text-yellow-200">*Terms and conditions apply. No actual benefits included.</p>
+        </div>
+    </div>
+
+    <!-- Predatory "Low Balance" Modal -->
+    <div id="low-balance-modal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center">
+        <div class="bg-gradient-to-br from-red-600 to-red-800 p-8 rounded-xl max-w-md text-center border-4 border-red-400 relative animate-pulse">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h2 class="text-3xl font-bold mb-4">LOW BALANCE ALERT!</h2>
+            <p class="mb-4">You're running low on funds!</p>
+            <p class="text-sm mb-6">Quick top-up now to keep the winning streak going!</p>
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="quickDeposit(100)" class="bg-green-500 hover:bg-green-600 font-bold py-3 rounded">$100</button>
+                <button onclick="quickDeposit(500)" class="bg-green-500 hover:bg-green-600 font-bold py-3 rounded">$500</button>
+                <button onclick="quickDeposit(1000)" class="bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-3 rounded">$1000<br><span class="text-xs">POPULAR</span></button>
+            </div>
+            <button onclick="closeLowBalanceModal()" class="text-sm text-gray-300 underline">Maybe later</button>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <header class="bg-black/50 backdrop-blur-sm border-b border-purple-500/30 sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="text-4xl">🎰</div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                            LuckyWin Casino
+                        </h1>
+                        <div class="text-xs text-green-400">✓ Licensed & Regulated*</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="bg-green-600/20 border border-green-500 px-4 py-2 rounded-lg">
+                        <div class="text-xs text-gray-400">Balance</div>
+                        <div class="text-2xl font-bold text-green-400" id="balance">$1000.00</div>
+                    </div>
+                    <button onclick="showDepositPopup()" class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform shadow-lg">
+                        + DEPOSIT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fake Ticker -->
+    <div class="bg-yellow-400 text-black py-2 overflow-hidden">
+        <div class="animate-marquee whitespace-nowrap">
+            <span class="inline-block px-4">🔥 SARAH K. just won $45,283!</span>
+            <span class="inline-block px-4">💰 MIKE T. won $12,847!</span>
+            <span class="inline-block px-4">🎉 JENNIFER L. won $67,392!</span>
+            <span class="inline-block px-4">⭐ DAVID M. won $23,156!</span>
+            <span class="inline-block px-4">🔥 SARAH K. just won $45,283!</span>
+            <span class="inline-block px-4">💰 MIKE T. won $12,847!</span>
+            <span class="inline-block px-4">🎉 JENNIFER L. won $67,392!</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Stats Bar (Fake Transparency) -->
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div class="text-sm text-gray-400">Win Rate</div>
+                <div class="text-2xl font-bold text-green-400">96.3%*</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div class="text-sm text-gray-400">Avg. Payout</div>
+                <div class="text-2xl font-bold text-yellow-400">$8,472</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div class="text-sm text-gray-400">Your Streak</div>
+                <div class="text-2xl font-bold text-orange-400" id="streak-display">0 🔥</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div class="text-sm text-gray-400">Players Online</div>
+                <div class="text-2xl font-bold text-blue-400" id="fake-online">47,382</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Column: Main Games -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Slots -->
+                <div class="bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl p-6 border border-purple-500/30 shadow-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold">🎰 Mega Slots</h2>
+                        <div class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                            HOT
+                        </div>
+                    </div>
+                    
+                    <div class="bg-black/50 rounded-lg p-6 mb-4">
+                        <div class="flex justify-center gap-4 mb-6">
+                            <div class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center text-5xl border-4 border-yellow-300" id="reel1">🍒</div>
+                            <div class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center text-5xl border-4 border-yellow-300" id="reel2">🍋</div>
+                            <div class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center text-5xl border-4 border-yellow-300" id="reel3">💎</div>
+                        </div>
+                        
+                        <div class="text-center mb-4">
+                            <div id="slot-message" class="text-xl font-bold h-8"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <div class="flex-1">
+                            <label class="text-sm text-gray-300 block mb-2">Bet Amount</label>
+                            <input type="number" id="slot-bet" value="10" min="1" class="w-full bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white font-bold text-lg">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="spinSlots()" id="spin-button" class="bg-gradient-to-r from-green-500 to-green-600 px-12 py-3 rounded-lg font-bold text-xl hover:scale-105 transition-transform shadow-lg">
+                                SPIN
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-xs text-gray-400 text-center">
+                        RTP: 96.3%* | Max Win: $500,000*
+                    </div>
+                </div>
+
+                <!-- Blackjack -->
+                <div class="bg-gradient-to-br from-green-900 to-emerald-900 rounded-xl p-6 border border-green-500/30 shadow-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold">🃏 "Fair" Blackjack</h2>
+                        <div class="text-sm text-gray-300">Dealer Stands on 17</div>
+                    </div>
+                    
+                    <div class="bg-black/50 rounded-lg p-6 mb-4">
+                        <div class="mb-6">
+                            <div class="text-sm text-gray-400 mb-2">Dealer's Hand (<span id="dealer-total">?</span>)</div>
+                            <div class="flex gap-2" id="dealer-cards">
+                                <div class="w-16 h-24 bg-white rounded border-2 border-gray-300 flex items-center justify-center text-3xl">🂠</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-gray-400 mb-2">Your Hand (<span id="player-total">0</span>)</div>
+                            <div class="flex gap-2" id="player-cards"></div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <div id="blackjack-message" class="text-xl font-bold h-8"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mb-3">
+                        <div class="flex-1">
+                            <label class="text-sm text-gray-300 block mb-2">Bet Amount</label>
+                            <input type="number" id="blackjack-bet" value="25" min="1" class="w-full bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white font-bold text-lg">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="dealBlackjack()" id="deal-button" class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform">
+                            DEAL
+                        </button>
+                        <button onclick="hitBlackjack()" id="hit-button" class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform" disabled>
+                            HIT
+                        </button>
+                        <button onclick="standBlackjack()" id="stand-button" class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform" disabled>
+                            STAND
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Side Games & Promotions -->
+            <div class="space-y-6">
+                
+                <!-- Fake Promotion -->
+                <div class="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl p-6 border-4 border-yellow-400 shadow-2xl animate-pulse">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">🎁</div>
+                        <div class="text-2xl font-bold mb-2">SPECIAL OFFER!</div>
+                        <div class="text-sm mb-4">Deposit $100, Get $100 "Free"*</div>
+                        <button onclick="showDepositPopup()" class="bg-white text-orange-600 font-bold px-6 py-3 rounded-lg w-full hover:scale-105 transition-transform">
+                            CLAIM BONUS
+                        </button>
+                        <div class="text-xs mt-3 text-yellow-100">*40x wagering requirement applies</div>
+                    </div>
+                </div>
+
+                <!-- Coinflip -->
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700/30 shadow-2xl">
+                    <h2 class="text-xl font-bold mb-4">🪙 Double or Nothing</h2>
+                    <p class="text-sm text-gray-400 mb-4">Bet your ENTIRE balance on a coinflip!</p>
+                    
+                    <div class="bg-black/50 rounded-lg p-6 mb-4 text-center">
+                        <div class="text-6xl mb-4" id="coin-display">🪙</div>
+                        <div id="coinflip-message" class="text-lg font-bold"></div>
+                    </div>
+                    
+                    <button onclick="flipCoin()" id="coinflip-button" class="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 rounded-lg font-bold w-full hover:scale-105 transition-transform">
+                        FLIP IT!
+                    </button>
+                    <div class="text-xs text-gray-400 text-center mt-2">50% Win Rate*</div>
+                </div>
+
+                <!-- Crash Game -->
+                <div class="bg-gradient-to-br from-red-900 to-orange-900 rounded-xl p-6 border border-red-500/30 shadow-2xl">
+                    <h2 class="text-xl font-bold mb-4">🚀 Crash</h2>
+                    
+                    <div class="bg-black/50 rounded-lg p-6 mb-4">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold mb-2" id="crash-multiplier">1.00x</div>
+                            <div class="text-sm text-gray-400">Current Multiplier</div>
+                        </div>
+                        
+                        <div class="mt-4 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="crash-progress" class="h-full bg-gradient-to-r from-green-500 to-red-500 transition-all duration-100" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-sm text-gray-300 block mb-2">Bet Amount</label>
+                        <input type="number" id="crash-bet" value="50" min="1" class="w-full bg-white/10 border border-white/30 rounded-lg px-4 py-3 text-white font-bold">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="startCrash()" id="crash-start" class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform">
+                            BET
+                        </button>
+                        <button onclick="cashoutCrash()" id="crash-cashout" class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-3 rounded-lg font-bold hover:scale-105 transition-transform" disabled>
+                            CASH OUT
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <div id="crash-message" class="text-sm font-bold"></div>
+                    </div>
+                </div>
+
+                <!-- Responsible Gaming (Parody) -->
+                <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div class="text-xs text-gray-400 space-y-2">
+                        <p class="font-bold">🎮 Responsible Gaming</p>
+                        <p>We care about your wellbeing!</p>
+                        <button class="text-blue-400 underline text-xs">Set limits (ignored)</button>
+                        <p class="text-[8px] mt-2">*License issued by the Republic of Nowhere. RTP rates theoretical. Past performance not indicative of future results. The house always wins. You probably have a gambling problem. Please gamble responsibly (but keep gambling).</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/50 border-t border-purple-500/30 mt-12 py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="font-bold mb-3">About Us</h3>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><a href="#" class="hover:text-white">About LuckyWin</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-3">Support</h3>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><a href="#" class="hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-3">Legal</h3>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><a href="#" class="hover:text-white">Terms & Conditions</a></li>
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white">Responsible Gaming</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-3">Follow Us</h3>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><a href="#" class="hover:text-white">Twitter</a></li>
+                        <li><a href="#" class="hover:text-white">Facebook</a></li>
+                        <li><a href="#" class="hover:text-white">Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center text-xs text-gray-500 border-t border-gray-800 pt-6">
+                <p class="mb-2">© 2024 LuckyWin Casino. All rights reserved. Licensed in the Republic of Nowhere.</p>
+                <p>Gambling can be addictive. Please play responsibly. 18+</p>
+                <p class="mt-2">This is a parody website. No real money involved. Don't actually gamble.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./script.js"></script>
+</body>
+</html>

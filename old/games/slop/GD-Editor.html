@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Geometry Dash Level Editor</title>
+    <link rel="stylesheet" href="css/gd-editor.css">
+</head>
+<body>
+
+<div id="game-wrapper">
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- Game UI (Play Mode) -->
+    <div id="game-ui">
+        <div class="title" id="main-title">TEST MODE</div>
+        <div class="subtitle" id="start-msg">Click to Start</div>
+    </div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+
+    <!-- Editor UI -->
+    <div id="editor-ui">
+        <div class="toolbar top-bar">
+            <div class="tool-group">
+                <button class="tool-btn" id="btn-play" onclick="togglePlayMode()"><i class="fas fa-play"></i> Test</button>
+                <button class="tool-btn" id="btn-stop" onclick="stopPlayMode()" style="display:none; background:#ff3333; border-color:#ff0000;"><i class="fas fa-stop"></i> Edit</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" onclick="exportLevel()"><i class="fas fa-file-export"></i> Save</button>
+                <button class="tool-btn" onclick="openImportModal()"><i class="fas fa-file-import"></i> Load</button>
+                <button class="tool-btn danger" onclick="clearLevel()"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+            <div class="tool-group">
+                <button class="tool-btn" id="btn-music" onclick="Music.toggle()"><i class="fas fa-music"></i></button>
+            </div>
+        </div>
+
+        <div id="info-text">WASD / Arrows to Move Camera • Click to Place</div>
+
+        <div id="camera-controls">
+            <button class="cam-btn" onclick="moveCamera(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="cam-btn" onclick="moveCamera(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="toolbar bottom-bar">
+            <button class="tool-btn active" id="tool-block" onclick="selectTool('block')">
+                <div style="width:15px; height:15px; background:black; border:1px solid #00ffcc; margin-right:5px;"></div> Block
+            </button>
+            <button class="tool-btn" id="tool-spike" onclick="selectTool('spike')">
+                <div style="width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-bottom:15px solid red; margin-right:5px;"></div> Spike
+            </button>
+            <button class="tool-btn danger" id="tool-eraser" onclick="selectTool('eraser')">
+                <i class="fas fa-eraser"></i> Eraser
+            </button>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="level-data-modal">
+        <h3 style="margin:0; color:white;">Level Data</h3>
+        <textarea id="level-data-io" placeholder="Paste level code here..."></textarea>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button class="tool-btn danger" onclick="closeModal()">Cancel</button>
+            <button class="tool-btn active" id="modal-action-btn" onclick="importLevel()">Load</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/gd-editor.js"></script>
+</body>
+</html>

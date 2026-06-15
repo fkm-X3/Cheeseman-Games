@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cube Combat 2: The Render Error</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #050505;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    overflow: hidden;
+}
+
+#game-wrapper {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+    background-color: #000;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    background-color: #222;
+}
+
+/* --- CUTSCENE STYLES --- */
+#cutscene-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    background: black;
+}
+
+#cutscene-layer.hidden {
+    display: none;
+    pointer-events: none;
+}
+
+#three-canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#cutscene-ui {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 60;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cinematic-bar {
+    width: 100%;
+    height: 60px;
+    background: black;
+}
+
+#cs-dialog-box {
+    background: rgba(0, 0, 0, 0.92);
+    border: 2px solid #00ffff;
+    border-radius: 4px;
+    padding: 20px 30px;
+    min-height: 70px;
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin-bottom: 80px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+#cs-dialog-text {
+    font-size: 1.1rem;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.4);
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+#warning-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;
+    font-weight: 900;
+    color: #ff0033;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255, 0, 51, 0.8),
+                 0 0 40px rgba(255, 0, 51, 0.6),
+                 4px 4px 8px rgba(0, 0, 0, 0.9);
+    display: none;
+    z-index: 70;
+    white-space: nowrap;
+    letter-spacing: 8px;
+}
+
+/* Glitch Animations */
+.glitch-anim {
+    animation: glitch-skew 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+    color: red;
+}
+
+@keyframes glitch-skew {
+    0% { transform: translate(-50%, -50%); }
+    20% { transform: translate(-55%, -45%); }
+    40% { transform: translate(-55%, -55%); }
+    60% { transform: translate(-45%, -45%); }
+    80% { transform: translate(-45%, -55%); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+.screen-shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite;
+}
+
+.cs-move-up {
+    transform: translateY(-320px) scale(0.85);
+    opacity: 0.3 !important;
+    pointer-events: none;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-4px, 0, 0); }
+    20%, 80% { transform: translate3d(6px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+    40%, 60% { transform: translate3d(8px, 0, 0); }
+}
+
+#scanlines {
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+    background-size: 100% 3px;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 55;
+    animation: scanline-move 8s linear infinite;
+}
+
+@keyframes scanline-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(3px); }
+}
+
+#vignette {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    box-shadow: 0 0 200px rgba(0,0,0,0.95) inset;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
+    pointer-events: none;
+    z-index: 56;
+}
+
+/* --- UI LAYER & EXISTING STYLES --- */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.menu-screen {
+    background: radial-gradient(ellipse at center, rgba(10, 10, 30, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.5s ease;
+}
+
+.menu-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 255, 0.03) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(0, 255, 255, 0.03) 3px
+    );
+    pointer-events: none;
+    animation: scan-lines 8s linear infinite;
+}
+
+@keyframes scan-lines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+}
+
+.menu-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.95);
+}
+
+.menu-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.game-title {
+    font-size: 60px;
+    margin-bottom: 10px;
+    text-shadow:
+        0 0 10px #0000FF,
+        0 0 20px #0000FF,
+        0 0 30px #0000FF,
+        4px 4px 0px rgba(0, 0, 255, 0.5);
+    letter-spacing: 8px;
+    text-align: center;
+    animation: title-glow 3s ease-in-out infinite;
+    position: relative;
+    z-index: 10;
+    font-weight: 900;
+    background: linear-gradient(180deg, #ffffff 0%, #00ffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@keyframes title-glow {
+    0%, 100% {
+        filter: brightness(1) drop-shadow(0 0 20px #0000FF);
+    }
+    50% {
+        filter: brightness(1.2) drop-shadow(0 0 30px #00ffff);
+    }
+}
+
+.menu-buttons {
+    position: relative;
+    z-index: 10;
+    margin-top: 20px;
+}
+
+.menu-buttons button {
+    display: block;
+    width: 300px;
+    padding: 18px 30px;
+    margin: 20px auto;
+    font-size: 22px;
+    border: 3px solid #00ffff;
+    background: rgba(0, 20, 40, 0.6);
+    color: #00ffff;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.menu-buttons button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.menu-buttons button:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.menu-buttons button:hover {
+    background: rgba(0, 40, 80, 0.8);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+    transform: scale(1.05);
+}
+
+.menu-buttons button span {
+    position: relative;
+    z-index: 1;
+}
+
+#dialogue-box {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #00ffff;
+    border-radius: 8px;
+    padding: 25px;
+    pointer-events: auto;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    transition: opacity 0.3s ease;
+}
+
+#dialogue-box.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#speaker-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00ffff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+#dialogue-text {
+    font-size: 18px;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+/* END OF ACT SCREEN */
+#end-of-act {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(20, 0, 40, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+}
+
+#end-of-act.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#end-of-act h1 {
+    font-size: 48px;
+    color: #ff00ff;
+    text-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+    margin-bottom: 30px;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 20px rgba(255, 0, 255, 0.8); }
+    50% { text-shadow: 0 0 40px rgba(255, 0, 255, 1); }
+}
+
+#end-of-act p {
+    font-size: 22px;
+    color: #00ffff;
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+}
+
+#end-of-act button {
+    padding: 15px 40px;
+    font-size: 20px;
+    background: rgba(255, 0, 255, 0.2);
+    border: 2px solid #ff00ff;
+    color: #ff00ff;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+}
+
+#end-of-act button:hover {
+    background: rgba(255, 0, 255, 0.4);
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.8);
+    transform: scale(1.1);
+}
+
+/* STEALTH HUD */
+#stealth-hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #00ffff;
+    font-size: 16px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    pointer-events: none;
+    z-index: 10;
+}
+
+#stealth-hud.hidden {
+    display: none;
+}
+
+.detected-warning {
+    color: #ff0000 !important;
+    animation: flash-red 0.5s infinite;
+}
+
+@keyframes flash-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- CUTSCENE LAYER (3D) -->
+        <div id="cutscene-layer" class="hidden">
+            <div id="three-canvas-container"></div>
+            <div id="cutscene-ui">
+                <div class="cinematic-bar"></div>
+                <div id="cs-dialog-box">
+                    <p id="cs-dialog-text"></p>
+                </div>
+                <div class="cinematic-bar"></div>
+            </div>
+            <div id="warning-overlay">ERROR</div>
+            <div id="scanlines"></div>
+            <div id="vignette"></div>
+        </div>
+
+        <!-- UI LAYER (2D) -->
+        <div id="ui-layer">
+            <!-- Main Menu -->
+            <div id="main-menu" class="menu-screen active">
+                <h1 class="game-title">CUBE COMBAT 2</h1>
+                <div class="menu-buttons">
+                    <button onclick="startCampaignFlow()"><span>▶ START CAMPAIGN</span></button>
+                    <button onclick="showCredits()"><span>📜 CREDITS</span></button>
+                </div>
+            </div>
+
+            <!-- Dialogue Box -->
+            <div id="dialogue-box" class="hidden">
+                <div id="speaker-name">Speaker</div>
+                <div id="dialogue-text">Dialogue text goes here.</div>
+            </div>
+
+            <!-- Stealth HUD -->
+            <div id="stealth-hud" class="hidden">
+                <div>Room: <span id="room-number">1</span>/3</div>
+                <div id="detection-status">Status: Undetected</div>
+            </div>
+
+            <!-- End of Act Screen -->
+            <div id="end-of-act">
+                <h1>END OF ACT 1</h1>
+                <p>You've reached the end of the current content!<br><br>
+                Act 2 and beyond are in active development.<br>
+                Stay tuned for more adventures in the Cube realm!</p>
+                <button onclick="returnToMenu()">Return to Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// --- AUDIO SYSTEM ---
+const AudioSystem = {
+    bgmContext: null, bgmGain: null, bgmSource: null, 
+    sfxContext: null, musicFiles: {}, sfxFiles: {}, initialized: false,
+
+    init: function() {
+        if (this.initialized) return;
+        this.bgmContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.bgmGain = this.bgmContext.createGain();
+        this.bgmGain.connect(this.bgmContext.destination);
+        this.bgmGain.gain.value = 0.3;
+        this.sfxContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        this.musicFiles = {
+            ambient: this.createLoopTone(this.bgmContext, [220, 330], 0.05),
+            danger: this.createLoopTone(this.bgmContext, [110, 165, 220], 0.08),
+            tension: this.createLoopTone(this.bgmContext, [100, 150], 0.04)
+        };
+        this.initialized = true;
+    },
+
+    createLoopTone: function(ctx, freqs, vol) {
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
+            let val = 0;
+            freqs.forEach(f => { val += Math.sin(2 * Math.PI * f * i / ctx.sampleRate); });
+            data[i] = (val / freqs.length) * vol;
+        }
+        return buffer;
+    },
+
+    startMusic: function(key) {
+        this.stopMusic();
+        this.init();
+        if (!this.musicFiles[key]) return;
+        this.bgmSource = this.bgmContext.createBufferSource();
+        this.bgmSource.buffer = this.musicFiles[key];
+        this.bgmSource.loop = true;
+        this.bgmSource.connect(this.bgmGain);
+        this.bgmSource.start(0);
+    },
+
+    stopMusic: function() {
+        if (this.bgmSource) { this.bgmSource.stop(); this.bgmSource = null; }
+    },
+
+    fadeMusic: function(targetVol, duration) {
+        if (!this.bgmGain) return;
+        this.bgmGain.gain.linearRampToValueAtTime(targetVol, this.bgmContext.currentTime + duration);
+    },
+
+    playSFX: function(type) {
+        this.init();
+        const osc = this.sfxContext.createOscillator();
+        const gain = this.sfxContext.createGain();
+        osc.connect(gain); gain.connect(this.sfxContext.destination);
+
+        const sfxMap = {
+            alert: { freq: 800, dur: 0.15 },
+            damage: { freq: 150, dur: 0.2 },
+            glitch: { freq: 50, dur: 0.1 },
+            whoosh: { freq: 400, dur: 0.3 },
+            explosion: { freq: 80, dur: 0.4 },
+            tension: { freq: 200, dur: 0.5 }
+        };
+
+        const sfx = sfxMap[type] || { freq: 440, dur: 0.2 };
+        osc.frequency.value = sfx.freq;
+        gain.gain.setValueAtTime(0.2, this.sfxContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.sfxContext.currentTime + sfx.dur);
+        osc.start(); osc.stop(this.sfxContext.currentTime + sfx.dur);
+    }
+};
+
+// --- 3D CUTSCENE ---
+const Cutscene3D = {
+    scene: null, camera: null, renderer: null, active: false, animationId: null,
+    azure: null, greenCube: null, yellowCube: null, tesseract: null, 
+    ambientLight: null, rimLight: null, isGlitching: false, glitchParticles: [],
+
+    playSequence: async function() {
+        this.active = true;
+        const container = document.getElementById('three-canvas-container');
+        container.innerHTML = '';
+        document.getElementById('cutscene-layer').classList.remove('hidden');
+
+        this.scene = new THREE.Scene();
+        this.scene.fog = new THREE.Fog(0x000033, 10, 50);
+        this.scene.background = new THREE.Color(0x000033);
+
+        this.camera = new THREE.PerspectiveCamera(50, 800 / 600, 0.1, 1000);
+        this.camera.position.set(0, 3, 15);
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(800, 600);
+        container.appendChild(this.renderer.domElement);
+
+        this.ambientLight = new THREE.AmbientLight(0x4444ff, 0.4);
+        this.scene.add(this.ambientLight);
+
+        const mainLight = new THREE.DirectionalLight(0x00ffff, 1.2);
+        mainLight.position.set(5, 10, 5);
+        this.scene.add(mainLight);
+
+        this.rimLight = new THREE.DirectionalLight(0x0088ff, 0.8);
+        this.rimLight.position.set(-5, 3, -10);
+        this.scene.add(this.rimLight);
+
+        this.createAzure();
+        this.createCubes();
+
+        this.animate();
+        await this.runStory();
+    },
+
+    animate: function() {
+        if (!this.active) return;
+        this.animationId = requestAnimationFrame(() => this.animate());
+
+        if (this.tesseract) {
+            this.tesseract.rotation.x += 0.01;
+            this.tesseract.rotation.y += 0.015;
+            this.tesseract.rotation.z += 0.008;
+        }
+
+        if (this.isGlitching) {
+            this.scene.background.setHex(Math.random() > 0.7 ? 0x330000 : 0x000033);
+        }
+
+        for (let i = this.glitchParticles.length - 1; i >= 0; i--) {
+            const p = this.glitchParticles[i];
+            p.position.y += p.userData.vy;
+            p.position.x += p.userData.vx;
+            p.userData.life--;
+            p.material.opacity = p.userData.life / 30;
+            if (p.userData.life <= 0) {
+                this.scene.remove(p);
+                this.glitchParticles.splice(i, 1);
+            }
+        }
+
+        this.renderer.render(this.scene, this.camera);
+    },
+
+    createAzure: function() {
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.3 
+        });
+        this.azure = new THREE.Mesh(geo, mat);
+        this.azure.position.set(0, 0.5, 0);
+        this.scene.add(this.azure);
+    },
+
+    createCubes: function() {
+        const geoG = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        const matG = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.2 });
+        this.greenCube = new THREE.Mesh(geoG, matG);
+        this.greenCube.position.set(-3, 0.5, -2);
+        this.scene.add(this.greenCube);
+
+        const geoY = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        const matY = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 0.2 });
+        this.yellowCube = new THREE.Mesh(geoY, matY);
+        this.yellowCube.position.set(3, 0.5, -2);
+        this.scene.add(this.yellowCube);
+    },
+
+    createTesseract: function() {
+        const innerGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+        const outerGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+        const mat = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.6, 
+            wireframe: false, transparent: true, opacity: 0.7 
+        });
+        const innerCube = new THREE.Mesh(innerGeo, mat);
+        const outerCube = new THREE.Mesh(outerGeo, mat.clone());
+        outerCube.material.wireframe = true;
+        outerCube.material.opacity = 0.4;
+
+        const group = new THREE.Group();
+        group.add(innerCube);
+        group.add(outerCube);
+        group.position.set(0, 20, -5);
+        this.tesseract = group;
+        this.scene.add(group);
+    },
+
+    createDeResParticles: function(pos, color) {
+        for (let i = 0; i < 20; i++) {
+            const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            const mat = new THREE.MeshBasicMaterial({ color, transparent: true });
+            const particle = new THREE.Mesh(geo, mat);
+            particle.position.copy(pos);
+            particle.userData = {
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: Math.random() * 0.15,
+                life: 30
+            };
+            this.scene.add(particle);
+            this.glitchParticles.push(particle);
+        }
+    },
+
+    runStory: async function() {
+        const dialogBox = document.getElementById('cs-dialog-box');
+        const dialogText = document.getElementById('cs-dialog-text');
+
+        const showText = async (text, dur) => {
+            dialogText.innerText = text;
+            dialogBox.style.opacity = 1;
+            await this.sleep(dur);
+            dialogBox.style.opacity = 0;
+            await this.sleep(300);
+        };
+
+        const moveDialogAway = () => dialogBox.classList.add('cs-move-up');
+        const moveDialogBack = () => dialogBox.classList.remove('cs-move-up');
+
+        AudioSystem.startMusic('ambient');
+        await showText("System: Initialization complete. Welcome to Sector Zero.", 3000);
+
+        let t = 0;
+        const camStartPos = this.camera.position.clone();
+        while (t < 1) {
+            t += 0.008;
+            this.camera.position.x = camStartPos.x + Math.sin(t * Math.PI) * 1.5;
+            this.camera.lookAt(0, 0, 0);
+            await this.sleep(16);
+        }
+
+        await showText("System: Sector Zero. Hub World. Status: Normal.", 3000);
+
+        AudioSystem.playSFX('tension');
+        AudioSystem.fadeMusic(0.1, 1);
+
+        this.scene.fog.color.setHex(0x330000);
+        this.scene.background.setHex(0x110000);
+        this.ambientLight.color.setHex(0x400000);
+        this.rimLight.color.setHex(0xff0000);
+
+        const camZoomStart = this.camera.position.clone();
+        t = 0;
+        while(t < 1) {
+            t += 0.03;
+            this.camera.position.z = camZoomStart.z - t * 2;
+            this.camera.position.y = camZoomStart.y + t * 1;
+            this.camera.lookAt(0, 2, -5);
+            await this.sleep(16);
+        }
+
+        AudioSystem.playSFX('alert');
+        document.getElementById('game-wrapper').classList.add('screen-shake');
+        await showText("System Alert: Anomalous energy signature detected!", 2000);
+
+        AudioSystem.stopMusic();
+        await this.sleep(300);
+        AudioSystem.startMusic('danger');
+
+        this.createTesseract();
+        AudioSystem.playSFX('whoosh');
+        moveDialogAway();
+
+        t = 0;
+        while(t < 1) {
+            t += 0.01;
+            const easeT = t * t;
+            this.tesseract.position.y = 20 + (5 - 20) * easeT;
+            this.camera.lookAt(0, this.tesseract.position.y * 0.3, -5);
+            await this.sleep(16);
+        }
+
+        AudioSystem.playSFX('explosion');
+        document.getElementById('game-wrapper').classList.remove('screen-shake');
+        await this.sleep(300);
+        moveDialogBack();
+
+        this.isGlitching = true;
+        const warn = document.getElementById('warning-overlay');
+        warn.style.display = 'block';
+        warn.classList.add('glitch-anim');
+
+        for(let i = 0; i < 5; i++) {
+            AudioSystem.playSFX('glitch');
+            await this.sleep(300);
+        }
+
+        await this.sleep(0);
+        warn.style.display = 'none';
+
+        await showText("Entity: Crimson Tesseract. executing: DELETE_ALL.EXE", 3000);
+
+        AudioSystem.playSFX('whoosh');
+        const startG = this.greenCube.position.clone();
+        const startY = this.yellowCube.position.clone();
+        t = 0;
+        while(t < 1) {
+            t += 0.01;
+            this.greenCube.position.lerpVectors(startG, this.tesseract.position, t);
+            this.yellowCube.position.lerpVectors(startY, this.tesseract.position, t);
+            const s = 1 - t;
+            this.greenCube.scale.set(s, s, 0.1);
+            this.yellowCube.scale.set(s, s, 0.1);
+            await this.sleep(16);
+        }
+
+        AudioSystem.playSFX('damage');
+        this.scene.remove(this.greenCube);
+        this.scene.remove(this.yellowCube);
+        this.createDeResParticles(this.tesseract.position, 0x00ff00);
+        this.createDeResParticles(this.tesseract.position, 0xffff00);
+
+        await showText("Azure: NO! They're being compressed!", 2000);
+
+        AudioSystem.playSFX('explosion');
+        AudioSystem.playSFX('damage');
+        this.createDeResParticles(this.azure.position, 0x00ffff);
+        const azStart = this.azure.position.clone();
+        const azEnd = new THREE.Vector3(0, 0.5, 8);
+        const camDamageStart = this.camera.position.clone();
+
+        t = 0;
+        while(t < 1) {
+            t += 0.02;
+            this.azure.position.lerpVectors(azStart, azEnd, t);
+            this.azure.rotation.z += 0.2;
+            this.azure.material.color.setHex(Math.random() > 0.5 ? 0x333333 : 0x00ffff);
+            this.azure.material.emissiveIntensity = Math.random() * 0.8;
+
+            this.camera.position.z = camDamageStart.z + Math.sin(t * Math.PI * 4) * 0.5;
+            this.camera.lookAt(this.azure.position);
+
+            if (t % 0.1 < 0.02) AudioSystem.playSFX('glitch');
+
+            await this.sleep(16);
+        }
+
+        await showText("System: CORE INTEGRITY CRITICAL. ABILITIES OFFLINE.", 2000);
+
+        AudioSystem.playSFX('whoosh');
+        while(this.azure.position.x > -15) {
+            this.azure.position.x -= 0.5;
+            this.camera.position.x -= 0.2;
+            this.camera.lookAt(this.azure.position);
+            await this.sleep(16);
+        }
+
+        AudioSystem.fadeMusic(0, 1.5);
+        await this.sleep(500);
+        this.cleanup();
+    },
+
+    cleanup: function() {
+        this.active = false;
+        cancelAnimationFrame(this.animationId);
+        document.getElementById('cutscene-layer').classList.add('hidden');
+        AudioSystem.stopMusic();
+        startGame();
+    },
+
+    sleep: function(ms) { return new Promise(r => setTimeout(r, ms)); }
+};
+
+// --- CAMPAIGN DATA ---
+const CAMPAIGN_DATA = {
+    act1: {
+        title: "The Glitch",
+        levels: [
+            {
+                id: "level_1_tutorial",
+                scene: "Sector Zero (Ruins)",
+                introDialogue: [
+                    { speaker: "Azure", text: "Ugh... my render buffer... hurts." },
+                    { speaker: "System", text: "DIAGNOSTIC: Friends deleted. World corrupted. Jump module online." },
+                    { speaker: "Azure", text: "I have to get them back. I have to find that red box." }
+                ],
+                bg: "#111",
+                floorColor: "#003366"
+            }
+        ]
+    }
+};
+
+// --- 2D GAME ENGINE ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const WIDTH = 800;
+const HEIGHT = 600;
+
+const GAME_STATE = { MENU: 0, DIALOGUE: 1, STEALTH: 2 };
+let currentState = GAME_STATE.MENU;
+let keys = {};
+
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (StoryManager.active && e.code === 'Space') {
+        e.preventDefault();
+        StoryManager.advance();
+    }
+});
+window.addEventListener('keyup', e => keys[e.code] = false);
+
+const StoryManager = {
+    active: false, queue: [], currentLineIndex: 0,
+    container: document.getElementById('dialogue-box'),
+    speakerEl: document.getElementById('speaker-name'),
+    textEl: document.getElementById('dialogue-text'),
+
+    startDialogue: function (dialogueArray, onComplete) {
+        this.queue = dialogueArray;
+        this.currentLineIndex = 0;
+        this.active = true;
+        this.onComplete = onComplete;
+        currentState = GAME_STATE.DIALOGUE;
+        this.container.classList.remove('hidden');
+        this.showLine();
+    },
+    showLine: function () {
+        if (this.currentLineIndex >= this.queue.length) {
+            this.endDialogue();
+            return;
+        }
+        const line = this.queue[this.currentLineIndex];
+        this.speakerEl.innerText = line.speaker;
+        this.textEl.innerText = line.text;
+    },
+    advance: function () { this.currentLineIndex++; this.showLine(); },
+    endDialogue: function () {
+        this.active = false;
+        this.container.classList.add('hidden');
+        if (this.onComplete) this.onComplete();
+    }
+};
+
+// --- STEALTH GAME CLASSES ---
+class StealthPlayer {
+    constructor(x, y) {
+        this.x = x; this.y = y; this.w = 40; this.h = 40;
+        this.color = '#0066ff'; this.vx = 0; this.vy = 0; 
+        this.isGrounded = false; this.detected = false;
+        this.canVault = false;
+        this.vaultTarget = null;
+    }
+    
+    update() {
+        if (currentState !== GAME_STATE.STEALTH) return;
+        
+        this.vy += 0.6;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= 0.8;
+        
+        // Ground collision
+        if (this.y + this.h >= HEIGHT - 50) {
+            this.y = HEIGHT - 50 - this.h;
+            this.vy = 0;
+            this.isGrounded = true;
+        } else if (this.vy > 0) {
+            // Only set to false if falling (platforms will set it back to true)
+            this.isGrounded = false;
+        }
+        
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+        
+        if (keys['ArrowLeft'] || keys['KeyA']) this.vx -= 0.8;
+        if (keys['ArrowRight'] || keys['KeyD']) this.vx += 0.8;
+        
+        // Jump or vault
+        if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space'])) {
+            if (this.canVault && this.vaultTarget) {
+                // Vault up onto platform
+                this.y = this.vaultTarget.y - this.h - 2;
+                this.vy = 0;
+                this.isGrounded = true;
+            } else if (this.isGrounded) {
+                // Regular jump
+                this.vy = -15;
+                this.isGrounded = false;
+            }
+        }
+    }
+    
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y, this.w, this.h);
+        ctx.shadowBlur = 0;
+        
+        // Show vault indicator
+        if (this.canVault) {
+            ctx.fillStyle = '#00ff00';
+            ctx.font = 'bold 16px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText('↑ VAULT', this.x + this.w/2, this.y - 10);
+        }
+    }
+}
+
+class Pyramid {
+    constructor(x, y, patrolLeft, patrolRight) {
+        this.x = x; this.y = y; this.size = 35;
+        this.color = '#ff3333';
+        this.vx = 2;
+        this.patrolLeft = patrolLeft;
+        this.patrolRight = patrolRight;
+        this.detectionRange = 120;
+        this.alertColor = '#ff0000';
+    }
+    
+    update(player) {
+        this.x += this.vx;
+        
+        if (this.x <= this.patrolLeft || this.x >= this.patrolRight) {
+            this.vx *= -1;
+        }
+        
+        const dist = Math.abs(this.x - player.x);
+        if (dist < this.detectionRange && Math.abs(this.y - player.y) < 100) {
+            player.detected = true;
+        }
+    }
+    
+    draw(player) {
+        const dist = Math.abs(this.x - player.x);
+        const isAlert = dist < this.detectionRange && Math.abs(this.y - player.y) < 100;
+        
+        ctx.fillStyle = isAlert ? this.alertColor : this.color;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y - this.size / 2);
+        ctx.lineTo(this.x - this.size / 2, this.y + this.size / 2);
+        ctx.lineTo(this.x + this.size / 2, this.y + this.size / 2);
+        ctx.closePath();
+        ctx.fill();
+        
+        if (isAlert) {
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ff0000';
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
+class Cylinder {
+    constructor(x, y, patrolLeft, patrolRight) {
+        this.x = x; this.y = y; 
+        this.w = 50; this.h = 60;
+        this.color = '#aa3333';
+        this.vx = 1;
+        this.patrolLeft = patrolLeft;
+        this.patrolRight = patrolRight;
+        this.detectionRange = 100;
+        this.alertColor = '#ff0000';
+    }
+    
+    update(player) {
+        this.x += this.vx;
+        
+        if (this.x <= this.patrolLeft || this.x >= this.patrolRight) {
+            this.vx *= -1;
+        }
+        
+        const dist = Math.abs(this.x - player.x);
+        if (dist < this.detectionRange && Math.abs(this.y - player.y) < 100) {
+            player.detected = true;
+        }
+    }
+    
+    draw(player) {
+        const dist = Math.abs(this.x - player.x);
+        const isAlert = dist < this.detectionRange && Math.abs(this.y - player.y) < 100;
+        
+        ctx.fillStyle = isAlert ? this.alertColor : this.color;
+        ctx.fillRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+        
+        if (isAlert) {
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ff0000';
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
+class Platform {
+    constructor(x, y, w, h) {
+        this.x = x; this.y = y; this.w = w; this.h = h;
+        this.color = '#225588';
+    }
+    
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.strokeStyle = '#3388bb';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y, this.w, this.h);
+    }
+}
+
+class ExitDoor {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.w = 60; this.h = 80;
+        this.color = '#00ff00';
+    }
+    
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(this.x, this.y, this.w, this.h);
+        ctx.shadowBlur = 0;
+        
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 16px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText('EXIT', this.x + this.w/2, this.y + this.h/2 + 5);
+    }
+    
+    checkCollision(player) {
+        return player.x < this.x + this.w &&
+               player.x + player.w > this.x &&
+               player.y < this.y + this.h &&
+               player.y + player.h > this.y;
+    }
+}
+
+// --- STEALTH ROOM SYSTEM ---
+const StealthRooms = {
+    currentRoom: 0,
+    player: null,
+    enemies: [],
+    platforms: [],
+    exitDoor: null,
+    
+    rooms: [
+        // Room 1: Simple introduction
+        {
+            enemies: [
+                { type: 'pyramid', x: 300, y: HEIGHT - 100, patrol: [200, 500] },
+                { type: 'cylinder', x: 600, y: HEIGHT - 110, patrol: [500, 700] }
+            ],
+            platforms: [
+                { x: 150, y: 400, w: 120, h: 20 },
+                { x: 450, y: 300, w: 120, h: 20 }
+            ],
+            exitDoor: { x: 720, y: HEIGHT - 130 }
+        },
+        // Room 2: More enemies
+        {
+            enemies: [
+                { type: 'pyramid', x: 250, y: HEIGHT - 100, patrol: [150, 400] },
+                { type: 'pyramid', x: 550, y: HEIGHT - 100, patrol: [450, 650] },
+                { type: 'cylinder', x: 400, y: 350, patrol: [300, 500] }
+            ],
+            platforms: [
+                { x: 100, y: 450, w: 100, h: 20 },
+                { x: 300, y: 370, w: 200, h: 20 },
+                { x: 550, y: 280, w: 150, h: 20 }
+            ],
+            exitDoor: { x: 700, y: 200 }
+        },
+        // Room 3: Challenging final room
+        {
+            enemies: [
+                { type: 'pyramid', x: 200, y: HEIGHT - 100, patrol: [100, 350] },
+                { type: 'cylinder', x: 400, y: HEIGHT - 110, patrol: [300, 500] },
+                { type: 'pyramid', x: 600, y: 400, patrol: [500, 700] },
+                { type: 'cylinder', x: 350, y: 300, patrol: [250, 550] }
+            ],
+            platforms: [
+                { x: 80, y: 480, w: 100, h: 20 },
+                { x: 250, y: 420, w: 120, h: 20 },
+                { x: 450, y: 320, w: 140, h: 20 },
+                { x: 620, y: 220, w: 130, h: 20 }
+            ],
+            exitDoor: { x: 720, y: 140 }
+        }
+    ],
+    
+    init: function() {
+        this.currentRoom = 0;
+        this.loadRoom(0);
+        currentState = GAME_STATE.STEALTH;
+        document.getElementById('stealth-hud').classList.remove('hidden');
+        document.getElementById('room-number').innerText = '1';
+        this.updateDetectionStatus(false);
+    },
+    
+    loadRoom: function(roomIndex) {
+        const roomData = this.rooms[roomIndex];
+        
+        this.player = new StealthPlayer(50, HEIGHT - 150);
+        this.enemies = [];
+        this.platforms = [];
+        
+        roomData.enemies.forEach(e => {
+            if (e.type === 'pyramid') {
+                this.enemies.push(new Pyramid(e.x, e.y, e.patrol[0], e.patrol[1]));
+            } else if (e.type === 'cylinder') {
+                this.enemies.push(new Cylinder(e.x, e.y, e.patrol[0], e.patrol[1]));
+            }
+        });
+        
+        roomData.platforms.forEach(p => {
+            this.platforms.push(new Platform(p.x, p.y, p.w, p.h));
+        });
+        
+        this.exitDoor = new ExitDoor(roomData.exitDoor.x, roomData.exitDoor.y);
+    },
+    
+    update: function() {
+        if (currentState !== GAME_STATE.STEALTH) return;
+        
+        this.player.detected = false;
+        
+        // Platform collision (landing on top) - CHECK BEFORE UPDATE
+        this.platforms.forEach(plat => {
+            if (this.player.x < plat.x + plat.w &&
+                this.player.x + this.player.w > plat.x &&
+                this.player.y + this.player.h >= plat.y &&
+                this.player.y + this.player.h <= plat.y + plat.h &&
+                this.player.vy >= 0) {
+                this.player.y = plat.y - this.player.h;
+                this.player.vy = 0;
+                this.player.isGrounded = true;
+            }
+        });
+        
+        // Check for vaultable platforms BEFORE player update
+        this.player.canVault = false;
+        this.player.vaultTarget = null;
+        
+        this.platforms.forEach(plat => {
+            const platformTop = plat.y;
+            const platformBottom = plat.y + plat.h;
+            const playerTop = this.player.y;
+            const playerBottom = this.player.y + this.player.h;
+            const playerLeft = this.player.x;
+            const playerRight = this.player.x + this.player.w;
+            const playerCenterX = this.player.x + this.player.w / 2;
+            
+            // Check if player is horizontally aligned with platform edges
+            const nearLeftEdge = Math.abs(playerRight - plat.x) < 5;
+            const nearRightEdge = Math.abs(playerLeft - (plat.x + plat.w)) < 5;
+            
+            // Check if platform top is between player's waist and head
+            const vaultHeight = playerBottom - playerTop;
+            const isVaultableHeight = platformTop > playerTop + vaultHeight * 0.2 && 
+                                     platformTop < playerBottom - 5;
+            
+            // Player should be at ground level or slightly below platform
+            const isAtCorrectVerticalPos = playerBottom >= platformTop - 10;
+            
+            if ((nearLeftEdge || nearRightEdge) && isVaultableHeight && isAtCorrectVerticalPos) {
+                this.player.canVault = true;
+                this.player.vaultTarget = plat;
+            }
+        });
+        
+        this.player.update();
+        
+        this.enemies.forEach(e => e.update(this.player));
+        
+        this.updateDetectionStatus(this.player.detected);
+        
+        // Check if detected - restart room
+        if (this.player.detected) {
+            setTimeout(() => {
+                AudioSystem.playSFX('damage');
+                this.loadRoom(this.currentRoom);
+            }, 500);
+        }
+        
+        // Check exit door
+        if (this.exitDoor.checkCollision(this.player)) {
+            this.nextRoom();
+        }
+    },
+    
+    nextRoom: function() {
+        AudioSystem.playSFX('alert');
+        this.currentRoom++;
+        
+        if (this.currentRoom >= this.rooms.length) {
+            this.complete();
+        } else {
+            this.loadRoom(this.currentRoom);
+            document.getElementById('room-number').innerText = (this.currentRoom + 1).toString();
+        }
+    },
+    
+    complete: function() {
+        currentState = GAME_STATE.MENU;
+        document.getElementById('stealth-hud').classList.add('hidden');
+        showEndOfAct();
+    },
+    
+    updateDetectionStatus: function(detected) {
+        const statusEl = document.getElementById('detection-status');
+        if (detected) {
+            statusEl.innerText = 'Status: DETECTED!';
+            statusEl.classList.add('detected-warning');
+        } else {
+            statusEl.innerText = 'Status: Undetected';
+            statusEl.classList.remove('detected-warning');
+        }
+    },
+    
+    draw: function() {
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, HEIGHT - 50, WIDTH, 50);
+        
+        this.platforms.forEach(p => p.draw());
+        this.exitDoor.draw();
+        this.enemies.forEach(e => e.draw(this.player));
+        this.player.draw();
+    }
+};
+
+function loop() {
+    if (currentState === GAME_STATE.STEALTH) {
+        StealthRooms.update();
+        StealthRooms.draw();
+    }
+    requestAnimationFrame(loop);
+}
+
+// --- FLOW CONTROL ---
+function startCampaignFlow() {
+    document.getElementById('main-menu').classList.remove('active');
+    document.getElementById('main-menu').classList.add('hidden');
+    Cutscene3D.playSequence();
+}
+
+function startGame() {
+    const level = CAMPAIGN_DATA.act1.levels[0];
+    StoryManager.startDialogue(level.introDialogue, () => {
+        StealthRooms.init();
+    });
+
+    if (!gameLoopStarted) {
+        gameLoopStarted = true;
+        loop();
+    }
+}
+
+function showEndOfAct() {
+    AudioSystem.startMusic('ambient');
+    document.getElementById('end-of-act').classList.add('active');
+}
+
+function returnToMenu() {
+    document.getElementById('end-of-act').classList.remove('active');
+    document.getElementById('main-menu').classList.add('active');
+    document.getElementById('main-menu').classList.remove('hidden');
+    AudioSystem.stopMusic();
+}
+
+function showCredits() {
+    alert("Placeholder for Credits Screen.");
+}
+
+let gameLoopStarted = false;
+ctx.fillStyle = '#111'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    </script>
+
+</body></html>

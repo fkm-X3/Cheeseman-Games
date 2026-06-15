@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-Euclidean FPS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            background: #000;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: #0f0;
+            border: 1px solid #000;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        #ui {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: #0f0;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px #000;
+            z-index: 100;
+            font-weight: bold;
+        }
+        
+        #weapon-stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #0f0;
+            font-size: 16px;
+            text-shadow: 2px 2px 4px #000;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border: 2px solid #0f0;
+            min-width: 200px;
+        }
+        
+        #weapon-stats h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #0ff;
+        }
+        
+        .stat-bar {
+            margin: 8px 0;
+        }
+        
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+        
+        .stat-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #002200;
+            border: 1px solid #0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0ff);
+            transition: width 0.3s ease;
+        }
+        
+        #morph-timer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #0f0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        #morph-progress {
+            width: 100%;
+            height: 6px;
+            background: #002200;
+            border: 1px solid #0f0;
+            margin-top: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #morph-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0, #f00);
+            transition: width 0.1s linear;
+        }
+        
+        .morphing {
+            animation: morph-flash 0.5s ease-in-out;
+        }
+        
+        @keyframes morph-flash {
+            0%, 100% { 
+                border-color: #0f0;
+                box-shadow: 0 0 10px #0f0;
+            }
+            50% { 
+                border-color: #ff0;
+                box-shadow: 0 0 30px #ff0;
+            }
+        }
+        
+        #instructions {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0f0;
+            font-size: 24px;
+            text-align: center;
+            text-shadow: 2px 2px 8px #000;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border: 2px solid #0f0;
+        }
+        
+        #instructions.hidden {
+            display: none;
+        }
+        
+        #lobby {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0f0;
+            font-size: 18px;
+            text-align: center;
+            text-shadow: 2px 2px 8px #000;
+            z-index: 101;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border: 2px solid #0f0;
+            min-width: 400px;
+        }
+        
+        #lobby.hidden {
+            display: none;
+        }
+        
+        #lobby h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #0ff;
+        }
+        
+        #lobby button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        #lobby button:hover {
+            background: #0ff;
+            box-shadow: 0 0 20px #0ff;
+        }
+        
+        #lobby input {
+            background: #001100;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            width: 80%;
+            margin: 10px 0;
+        }
+        
+        #player-list {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #0f0;
+        }
+        
+        #player-list div {
+            padding: 5px;
+            margin: 5px 0;
+        }
+        
+        .player-name {
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        #network-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #0f0;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px #000;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border: 1px solid #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="crosshair"></div>
+    
+    <div id="network-status">
+        <div>MODE: <span id="net-mode">OFFLINE</span></div>
+        <div>PLAYERS: <span id="net-players">0</span></div>
+        <div>PING: <span id="net-ping">-</span></div>
+    </div>
+    
+    <div id="ui">
+        <div>AMMO: <span id="ammo">30/30</span></div>
+        <div>HEALTH: <span id="health">100</span></div>
+    </div>
+    
+    <div id="lobby">
+        <h2>MULTIPLAYER LOBBY</h2>
+        <div id="lobby-main">
+            <button onclick="createRoom()">HOST GAME</button>
+            <button onclick="showJoinRoom()">JOIN GAME</button>
+            <button onclick="startSingleplayer()">SINGLEPLAYER</button>
+        </div>
+        <div id="lobby-join" style="display: none;">
+            <input type="text" id="room-code" placeholder="Enter Room Code" />
+            <br>
+            <button onclick="joinRoom()">CONNECT</button>
+            <button onclick="showMainLobby()">BACK</button>
+        </div>
+        <div id="lobby-host" style="display: none;">
+            <p>ROOM CODE: <span id="host-room-code" style="color: #0ff; font-size: 24px;">----</span></p>
+            <p style="font-size: 14px; margin: 10px 0;">Share this code with players</p>
+            <div id="player-list"></div>
+            <button onclick="startGame()">START GAME</button>
+            <button onclick="cancelHost()">CANCEL</button>
+        </div>
+        <div id="lobby-status" style="display: none; margin-top: 20px;"></div>
+    </div>
+    
+    <div id="weapon-stats">
+        <h3>WEAPON MORPH</h3>
+        
+        <div class="stat-bar">
+            <div class="stat-label">
+                <span>DAMAGE</span>
+                <span id="damage-val">25</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="damage-bar"></div>
+            </div>
+        </div>
+        
+        <div class="stat-bar">
+            <div class="stat-label">
+                <span>FIRE RATE</span>
+                <span id="firerate-val">50</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="firerate-bar"></div>
+            </div>
+        </div>
+        
+        <div class="stat-bar">
+            <div class="stat-label">
+                <span>PROJ SPEED</span>
+                <span id="speed-val">45</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="speed-bar"></div>
+            </div>
+        </div>
+        
+        <div class="stat-bar">
+            <div class="stat-label">
+                <span>SPREAD</span>
+                <span id="spread-val">5°</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="spread-bar"></div>
+            </div>
+        </div>
+        
+        <div class="stat-bar">
+            <div class="stat-label">
+                <span>MAG SIZE</span>
+                <span id="mag-val">30</span>
+            </div>
+            <div class="stat-bar-bg">
+                <div class="stat-bar-fill" id="mag-bar"></div>
+            </div>
+        </div>
+        
+        <div id="morph-timer">
+            NEXT MORPH: <span id="morph-countdown">4.0s</span>
+            <div id="morph-progress">
+                <div id="morph-progress-fill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="instructions" class="hidden">
+        <h2>NON-EUCLIDEAN FPS</h2>
+        <p style="margin-top: 20px;">WASD - Move</p>
+        <p>SPACE - Jump</p>
+        <p>MOUSE - Look</p>
+        <p>LEFT CLICK - Shoot</p>
+        <p>R - Reload</p>
+        <p>M - Regenerate Map</p>
+        <p style="margin-top: 30px; font-size: 18px;">Click to start</p>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        // Networking system
+        const network = {
+            peer: null,
+            isHost: false,
+            roomCode: null,
+            connections: new Map(),
+            players: new Map(),
+            playerId: 'player_' + Math.random().toString(36).substr(2, 9),
+            lastUpdate: Date.now(),
+            updateRate: 50 // 20 updates per second
+        };
+        
+        // Player data structure
+        class NetworkPlayer {
+            constructor(id, name) {
+                this.id = id;
+                this.name = name;
+                this.position = new THREE.Vector3();
+                this.rotation = { pitch: 0, yaw: 0 };
+                this.health = 100;
+                this.lastUpdate = Date.now();
+                this.mesh = null;
+                this.createMesh();
+            }
+            
+            createMesh() {
+                // Simple player representation
+                const group = new THREE.Group();
+                
+                // Body
+                const bodyGeometry = new THREE.CapsuleGeometry(0.5, 1.5, 8, 16);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x00ff00,
+                    roughness: 0.7
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.castShadow = true;
+                group.add(body);
+                
+                // Name tag
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, 256, 64);
+                ctx.fillStyle = '#00ff00';
+                ctx.font = 'bold 32px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.name, 128, 42);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                const nameTag = new THREE.Sprite(
+                    new THREE.SpriteMaterial({ map: texture })
+                );
+                nameTag.scale.set(2, 0.5, 1);
+                nameTag.position.y = 2;
+                group.add(nameTag);
+                
+                this.mesh = group;
+                scene.add(group);
+            }
+            
+            update(data) {
+                if (data.position) {
+                    this.position.set(data.position.x, data.position.y, data.position.z);
+                    this.mesh.position.copy(this.position);
+                }
+                if (data.rotation) {
+                    this.rotation = data.rotation;
+                    this.mesh.rotation.y = data.rotation.yaw;
+                }
+                if (data.health !== undefined) {
+                    this.health = data.health;
+                }
+                this.lastUpdate = Date.now();
+            }
+            
+            destroy() {
+                if (this.mesh) {
+                    scene.remove(this.mesh);
+                }
+            }
+        }
+        
+        // Initialize PeerJS
+        function initNetworking() {
+            network.peer = new Peer(network.playerId);
+            
+            network.peer.on('open', (id) => {
+                console.log('Connected to PeerJS server with ID:', id);
+            });
+            
+            network.peer.on('error', (err) => {
+                console.error('PeerJS error:', err);
+                showStatus('Connection error: ' + err.type, true);
+            });
+        }
+        
+        // Host creates room
+        function createRoom() {
+            network.isHost = true;
+            network.roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+            
+            document.getElementById('lobby-main').style.display = 'none';
+            document.getElementById('lobby-host').style.display = 'block';
+            document.getElementById('host-room-code').textContent = network.roomCode;
+            
+            updatePlayerList();
+            
+            // Listen for incoming connections
+            network.peer.on('connection', (conn) => {
+                handleNewConnection(conn);
+            });
+            
+            document.getElementById('net-mode').textContent = 'HOST';
+        }
+        
+        // Handle new player connection
+        function handleNewConnection(conn) {
+            console.log('New connection from:', conn.peer);
+            
+            conn.on('open', () => {
+                network.connections.set(conn.peer, conn);
+                
+                // Send welcome message with current game state
+                conn.send({
+                    type: 'welcome',
+                    hostId: network.playerId,
+                    players: Array.from(network.players.values()).map(p => ({
+                        id: p.id,
+                        name: p.name
+                    })),
+                    mapSeed: mapData.seed
+                });
+            });
+            
+            conn.on('data', (data) => {
+                handleNetworkMessage(conn.peer, data);
+            });
+            
+            conn.on('close', () => {
+                console.log('Player disconnected:', conn.peer);
+                network.connections.delete(conn.peer);
+                const player = network.players.get(conn.peer);
+                if (player) {
+                    player.destroy();
+                    network.players.delete(conn.peer);
+                }
+                updatePlayerList();
+            });
+        }
+        
+        // Join existing room
+        function showJoinRoom() {
+            document.getElementById('lobby-main').style.display = 'none';
+            document.getElementById('lobby-join').style.display = 'block';
+        }
+        
+        function joinRoom() {
+            const roomCode = document.getElementById('room-code').value.toUpperCase();
+            if (!roomCode) return;
+            
+            showStatus('Connecting...', false);
+            
+            // Try to connect to host
+            const conn = network.peer.connect(roomCode.toLowerCase() + '_' + network.playerId.substr(0, 6));
+            
+            conn.on('open', () => {
+                network.connections.set(conn.peer, conn);
+                network.roomCode = roomCode;
+                
+                conn.send({
+                    type: 'join',
+                    playerId: network.playerId,
+                    playerName: 'Player_' + network.playerId.substr(0, 4)
+                });
+                
+                document.getElementById('net-mode').textContent = 'CLIENT';
+            });
+            
+            conn.on('data', (data) => {
+                handleNetworkMessage(conn.peer, data);
+            });
+            
+            conn.on('error', (err) => {
+                showStatus('Failed to connect: ' + err, true);
+            });
+        }
+        
+        // Handle network messages
+        function handleNetworkMessage(senderId, data) {
+            switch (data.type) {
+                case 'welcome':
+                    // Host sent us game state
+                    mapData.seed = data.mapSeed;
+                    clearMap();
+                    createEnvironment();
+                    
+                    // Create other players
+                    data.players.forEach(playerData => {
+                        if (playerData.id !== network.playerId) {
+                            const player = new NetworkPlayer(playerData.id, playerData.name);
+                            network.players.set(playerData.id, player);
+                        }
+                    });
+                    
+                    showStatus('Connected! Starting game...', false);
+                    setTimeout(() => {
+                        document.getElementById('lobby').classList.add('hidden');
+                        document.body.requestPointerLock();
+                    }, 2000);
+                    break;
+                    
+                case 'join':
+                    // New player joined
+                    if (network.isHost) {
+                        const player = new NetworkPlayer(data.playerId, data.playerName);
+                        network.players.set(data.playerId, player);
+                        updatePlayerList();
+                        
+                        // Broadcast to all other players
+                        broadcastToAll({
+                            type: 'playerJoined',
+                            playerId: data.playerId,
+                            playerName: data.playerName
+                        });
+                    }
+                    break;
+                    
+                case 'playerJoined':
+                    // Another player joined
+                    const newPlayer = new NetworkPlayer(data.playerId, data.playerName);
+                    network.players.set(data.playerId, newPlayer);
+                    break;
+                    
+                case 'playerUpdate':
+                    // Update player state
+                    let player = network.players.get(data.playerId);
+                    if (!player) {
+                        player = new NetworkPlayer(data.playerId, data.playerName || 'Player');
+                        network.players.set(data.playerId, player);
+                    }
+                    player.update(data);
+                    break;
+                    
+                case 'startGame':
+                    document.getElementById('lobby').classList.add('hidden');
+                    document.body.requestPointerLock();
+                    break;
+            }
+        }
+        
+        // Broadcast message to all connected players
+        function broadcastToAll(data) {
+            network.connections.forEach(conn => {
+                if (conn.open) {
+                    conn.send(data);
+                }
+            });
+        }
+        
+        // Send player update
+        function sendPlayerUpdate() {
+            if (!game.locked || network.connections.size === 0) return;
+            
+            const now = Date.now();
+            if (now - network.lastUpdate < network.updateRate) return;
+            network.lastUpdate = now;
+            
+            const data = {
+                type: 'playerUpdate',
+                playerId: network.playerId,
+                position: {
+                    x: yawObject.position.x,
+                    y: yawObject.position.y,
+                    z: yawObject.position.z
+                },
+                rotation: {
+                    pitch: pitch,
+                    yaw: yaw
+                },
+                health: game.health
+            };
+            
+            broadcastToAll(data);
+        }
+        
+        // UI functions
+        function showMainLobby() {
+            document.getElementById('lobby-main').style.display = 'block';
+            document.getElementById('lobby-join').style.display = 'none';
+            document.getElementById('lobby-host').style.display = 'none';
+        }
+        
+        function showStatus(message, isError) {
+            const status = document.getElementById('lobby-status');
+            status.textContent = message;
+            status.style.color = isError ? '#ff0000' : '#0f0';
+            status.style.display = 'block';
+        }
+        
+        function updatePlayerList() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '<p style="margin-bottom: 10px;">PLAYERS IN LOBBY:</p>';
+            
+            // Add host
+            list.innerHTML += '<div><span class="player-name">You (Host)</span></div>';
+            
+            // Add connected players
+            network.players.forEach(player => {
+                list.innerHTML += `<div><span class="player-name">${player.name}</span></div>`;
+            });
+            
+            document.getElementById('net-players').textContent = (1 + network.players.size);
+        }
+        
+        function startGame() {
+            broadcastToAll({ type: 'startGame' });
+            document.getElementById('lobby').classList.add('hidden');
+            document.body.requestPointerLock();
+        }
+        
+        function cancelHost() {
+            network.connections.forEach(conn => conn.close());
+            network.connections.clear();
+            network.players.forEach(player => player.destroy());
+            network.players.clear();
+            showMainLobby();
+        }
+        
+        function startSingleplayer() {
+            document.getElementById('lobby').classList.add('hidden');
+            document.getElementById('net-mode').textContent = 'OFFLINE';
+        }
+        
+        // Game state
+        const game = {
+            locked: false,
+            health: 100,
+            weapon: {
+                damage: 25,
+                fireRate: 150,
+                projectileSpeed: 45,
+                spread: 5,
+                magSize: 30,
+                ammo: 30,
+                maxAmmo: 30,
+                lastShot: 0,
+                reloading: false
+            },
+            morphTimer: 0,
+            morphInterval: 4000, // 4 seconds between morphs
+            lastMorphTime: Date.now()
+        };
+        
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+        scene.fog = new THREE.Fog(0x0a0a0a, 20, 80);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+        
+        // Player movement
+        const player = {
+            velocity: new THREE.Vector3(),
+            direction: new THREE.Vector3(),
+            canJump: false,
+            height: 1.8,
+            speed: 0.15,
+            jumpVelocity: 0.3
+        };
+        
+        const keys = {};
+        const moveDirection = new THREE.Vector3();
+        
+        // Camera rotation
+        let pitch = 0;
+        let yaw = 0;
+        const pitchObject = new THREE.Object3D();
+        const yawObject = new THREE.Object3D();
+        pitchObject.add(camera);
+        yawObject.add(pitchObject);
+        scene.add(yawObject);
+        yawObject.position.y = player.height;
+        
+        // Procedural map generation
+        const mapData = {
+            gridSize: 10, // Size of grid cells
+            mapWidth: 15, // Grid units
+            mapDepth: 15,
+            cells: [],
+            rooms: [],
+            corridors: [],
+            portals: [],
+            seed: Math.random()
+        };
+        
+        // Portal system for non-Euclidean spaces
+        class Portal {
+            constructor(entryPos, exitPos, entryNormal, exitNormal, width, height) {
+                this.entryPos = entryPos.clone();
+                this.exitPos = exitPos.clone();
+                this.entryNormal = entryNormal.clone();
+                this.exitNormal = exitNormal.clone();
+                this.width = width;
+                this.height = height;
+                this.active = true;
+                
+                // Visual mesh for the portal
+                this.mesh = null;
+                this.createVisuals();
+            }
+            
+            createVisuals() {
+                // Portal frame
+                const frameGeometry = new THREE.BoxGeometry(this.width + 0.2, this.height + 0.2, 0.1);
+                const frameMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x00ffff,
+                    emissive: 0x00ffff,
+                    emissiveIntensity: 0.5,
+                    metalness: 0.8,
+                    roughness: 0.2
+                });
+                
+                this.mesh = new THREE.Mesh(frameGeometry, frameMaterial);
+                
+                // Position and orient the portal
+                this.mesh.position.copy(this.entryPos);
+                this.mesh.lookAt(this.entryPos.clone().add(this.entryNormal));
+                
+                // Add swirling effect plane
+                const portalGeometry = new THREE.PlaneGeometry(this.width, this.height);
+                const portalMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x00ffff,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                
+                const portalPlane = new THREE.Mesh(portalGeometry, portalMaterial);
+                portalPlane.position.z = 0.05;
+                this.mesh.add(portalPlane);
+                
+                // Add glow effect
+                const glowLight = new THREE.PointLight(0x00ffff, 1, 10);
+                glowLight.position.z = 0.5;
+                this.mesh.add(glowLight);
+                
+                this.mesh.userData.portal = this;
+            }
+            
+            checkTeleport(playerPos, playerVelocity) {
+                // Calculate if player passed through portal plane
+                const toPlayer = playerPos.clone().sub(this.entryPos);
+                const distanceToPlane = toPlayer.dot(this.entryNormal);
+                
+                // Check if within portal bounds and passing through
+                if (Math.abs(distanceToPlane) < 0.5) {
+                    const localX = toPlayer.dot(new THREE.Vector3(
+                        -this.entryNormal.z, 0, this.entryNormal.x
+                    ));
+                    const localY = toPlayer.y - this.entryPos.y;
+                    
+                    if (Math.abs(localX) < this.width / 2 && Math.abs(localY) < this.height / 2) {
+                        // Player is in portal bounds
+                        const velocityDot = playerVelocity.dot(this.entryNormal);
+                        if (velocityDot < 0) { // Moving towards portal
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            teleport(playerPos, playerYaw) {
+                // Calculate relative position in entry portal
+                const toPlayer = playerPos.clone().sub(this.entryPos);
+                const entryRight = new THREE.Vector3(-this.entryNormal.z, 0, this.entryNormal.x);
+                const entryUp = new THREE.Vector3(0, 1, 0);
+                
+                const localX = toPlayer.dot(entryRight);
+                const localY = toPlayer.y - this.entryPos.y;
+                const localZ = toPlayer.dot(this.entryNormal);
+                
+                // Transform to exit portal space
+                const exitRight = new THREE.Vector3(-this.exitNormal.z, 0, this.exitNormal.x);
+                const exitUp = new THREE.Vector3(0, 1, 0);
+                
+                const newPos = this.exitPos.clone()
+                    .add(exitRight.multiplyScalar(localX))
+                    .add(exitUp.multiplyScalar(localY))
+                    .add(this.exitNormal.clone().multiplyScalar(-localZ));
+                
+                // Calculate rotation change
+                const entryAngle = Math.atan2(this.entryNormal.x, this.entryNormal.z);
+                const exitAngle = Math.atan2(-this.exitNormal.x, -this.exitNormal.z);
+                const rotationDelta = exitAngle - entryAngle;
+                
+                return {
+                    position: newPos,
+                    yawDelta: rotationDelta
+                };
+            }
+        }
+        
+        // Clear existing map objects
+        function clearMap() {
+            const objectsToRemove = [];
+            scene.children.forEach(obj => {
+                if (obj.type === 'Mesh' || obj.type === 'PointLight') {
+                    if (obj !== camera && !obj.isAmbientLight && !obj.isDirectionalLight) {
+                        objectsToRemove.push(obj);
+                    }
+                }
+            });
+            objectsToRemove.forEach(obj => scene.remove(obj));
+            mapData.portals = [];
+        }
+        
+        // Regenerate entire map
+        function regenerateMap() {
+            clearMap();
+            mapData.seed = Math.random();
+            createEnvironment();
+        }
+        
+        // Simple seeded random
+        function seededRandom(seed) {
+            const x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        }
+        
+        // Generate room-based dungeon layout
+        function generateMapLayout() {
+            const grid = [];
+            const w = mapData.mapWidth;
+            const d = mapData.mapDepth;
+            
+            // Initialize empty grid
+            for (let z = 0; z < d; z++) {
+                grid[z] = [];
+                for (let x = 0; x < w; x++) {
+                    grid[z][x] = 0; // 0 = empty, 1 = floor, 2 = wall
+                }
+            }
+            
+            mapData.rooms = [];
+            let seed = mapData.seed;
+            
+            // Generate random rooms
+            const numRooms = 8 + Math.floor(seededRandom(seed++) * 6);
+            
+            for (let i = 0; i < numRooms; i++) {
+                const roomWidth = 3 + Math.floor(seededRandom(seed++) * 5);
+                const roomDepth = 3 + Math.floor(seededRandom(seed++) * 5);
+                const roomX = Math.floor(seededRandom(seed++) * (w - roomWidth - 2)) + 1;
+                const roomZ = Math.floor(seededRandom(seed++) * (d - roomDepth - 2)) + 1;
+                
+                // Check if room overlaps with existing rooms
+                let overlaps = false;
+                for (let z = roomZ - 1; z < roomZ + roomDepth + 1; z++) {
+                    for (let x = roomX - 1; x < roomX + roomWidth + 1; x++) {
+                        if (z >= 0 && z < d && x >= 0 && x < w && grid[z][x] === 1) {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+                    if (overlaps) break;
+                }
+                
+                if (!overlaps) {
+                    // Place room
+                    for (let z = roomZ; z < roomZ + roomDepth; z++) {
+                        for (let x = roomX; x < roomX + roomWidth; x++) {
+                            grid[z][x] = 1;
+                        }
+                    }
+                    
+                    mapData.rooms.push({
+                        x: roomX,
+                        z: roomZ,
+                        width: roomWidth,
+                        depth: roomDepth,
+                        centerX: roomX + Math.floor(roomWidth / 2),
+                        centerZ: roomZ + Math.floor(roomDepth / 2)
+                    });
+                }
+            }
+            
+            // Connect rooms with corridors
+            for (let i = 0; i < mapData.rooms.length - 1; i++) {
+                const roomA = mapData.rooms[i];
+                const roomB = mapData.rooms[i + 1];
+                
+                // Create L-shaped corridor
+                let x = roomA.centerX;
+                let z = roomA.centerZ;
+                
+                while (x !== roomB.centerX) {
+                    if (x >= 0 && x < w && z >= 0 && z < d) {
+                        grid[z][x] = 1;
+                    }
+                    x += (roomB.centerX > x) ? 1 : -1;
+                }
+                
+                while (z !== roomB.centerZ) {
+                    if (x >= 0 && x < w && z >= 0 && z < d) {
+                        grid[z][x] = 1;
+                    }
+                    z += (roomB.centerZ > z) ? 1 : -1;
+                }
+            }
+            
+            mapData.cells = grid;
+            return grid;
+        }
+        
+        // Create 3D geometry from map layout
+        function createEnvironment() {
+            const grid = generateMapLayout();
+            const cellSize = mapData.gridSize;
+            
+            // Floor and ceiling materials
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a1a,
+                roughness: 0.9
+            });
+            
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x333333,
+                roughness: 0.7
+            });
+            
+            // Generate walls and floors
+            for (let z = 0; z < mapData.mapDepth; z++) {
+                for (let x = 0; x < mapData.mapWidth; x++) {
+                    const worldX = (x - mapData.mapWidth / 2) * cellSize;
+                    const worldZ = (z - mapData.mapDepth / 2) * cellSize;
+                    
+                    if (grid[z][x] === 1) {
+                        // Create floor tile
+                        const floorGeom = new THREE.PlaneGeometry(cellSize, cellSize);
+                        const floor = new THREE.Mesh(floorGeom, floorMaterial);
+                        floor.rotation.x = -Math.PI / 2;
+                        floor.position.set(worldX, 0, worldZ);
+                        floor.receiveShadow = true;
+                        scene.add(floor);
+                        
+                        // Check adjacent cells for walls
+                        const checks = [
+                            { dx: 0, dz: -1, rotY: 0 },        // North
+                            { dx: 1, dz: 0, rotY: Math.PI / 2 }, // East
+                            { dx: 0, dz: 1, rotY: Math.PI },    // South
+                            { dx: -1, dz: 0, rotY: -Math.PI / 2 } // West
+                        ];
+                        
+                        checks.forEach(check => {
+                            const adjX = x + check.dx;
+                            const adjZ = z + check.dz;
+                            
+                            // Place wall if adjacent cell is empty or out of bounds
+                            if (adjX < 0 || adjX >= mapData.mapWidth || 
+                                adjZ < 0 || adjZ >= mapData.mapDepth || 
+                                grid[adjZ][adjX] === 0) {
+                                
+                                const wallHeight = 4 + Math.random() * 2;
+                                const wallGeom = new THREE.BoxGeometry(cellSize, wallHeight, 0.5);
+                                const wall = new THREE.Mesh(wallGeom, wallMaterial.clone());
+                                
+                                // Position wall at edge of cell
+                                const offsetX = check.dx * cellSize / 2;
+                                const offsetZ = check.dz * cellSize / 2;
+                                wall.position.set(worldX + offsetX, wallHeight / 2, worldZ + offsetZ);
+                                wall.rotation.y = check.rotY;
+                                wall.castShadow = true;
+                                wall.receiveShadow = true;
+                                scene.add(wall);
+                            }
+                        });
+                    }
+                }
+            }
+            
+            // Add pillars in rooms
+            const pillarMaterial = new THREE.MeshStandardMaterial({
+                color: 0x555555,
+                roughness: 0.6
+            });
+            
+            mapData.rooms.forEach((room, idx) => {
+                let seed = mapData.seed + idx * 100;
+                
+                // Random decorations per room
+                const numPillars = Math.floor(seededRandom(seed++) * 3);
+                for (let i = 0; i < numPillars; i++) {
+                    const pillarX = (room.x + 1 + Math.floor(seededRandom(seed++) * (room.width - 2)) - mapData.mapWidth / 2) * cellSize;
+                    const pillarZ = (room.z + 1 + Math.floor(seededRandom(seed++) * (room.depth - 2)) - mapData.mapDepth / 2) * cellSize;
+                    const pillarHeight = 3 + seededRandom(seed++) * 3;
+                    
+                    const pillar = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.5, 0.8, pillarHeight, 8),
+                        pillarMaterial
+                    );
+                    pillar.position.set(pillarX, pillarHeight / 2, pillarZ);
+                    pillar.castShadow = true;
+                    pillar.receiveShadow = true;
+                    scene.add(pillar);
+                }
+                
+                // Add target boxes in rooms
+                const numTargets = 1 + Math.floor(seededRandom(seed++) * 3);
+                for (let i = 0; i < numTargets; i++) {
+                    const targetX = (room.x + Math.floor(seededRandom(seed++) * room.width) - mapData.mapWidth / 2) * cellSize;
+                    const targetZ = (room.z + Math.floor(seededRandom(seed++) * room.depth) - mapData.mapDepth / 2) * cellSize;
+                    const size = 0.8 + seededRandom(seed++) * 1.2;
+                    
+                    const target = new THREE.Mesh(
+                        new THREE.BoxGeometry(size, size, size),
+                        new THREE.MeshStandardMaterial({ 
+                            color: 0xff0000,
+                            roughness: 0.5
+                        })
+                    );
+                    target.position.set(targetX, size / 2, targetZ);
+                    target.castShadow = true;
+                    target.receiveShadow = true;
+                    target.userData.isTarget = true;
+                    scene.add(target);
+                }
+            });
+            
+            // Add ambient lighting to rooms
+            mapData.rooms.forEach(room => {
+                const lightX = (room.centerX - mapData.mapWidth / 2) * cellSize;
+                const lightZ = (room.centerZ - mapData.mapDepth / 2) * cellSize;
+                
+                const roomLight = new THREE.PointLight(0x4488ff, 0.5, 20);
+                roomLight.position.set(lightX, 3, lightZ);
+                scene.add(roomLight);
+            });
+            
+            // Spawn player in first room
+            if (mapData.rooms.length > 0) {
+                const spawnRoom = mapData.rooms[0];
+                const spawnX = (spawnRoom.centerX - mapData.mapWidth / 2) * cellSize;
+                const spawnZ = (spawnRoom.centerZ - mapData.mapDepth / 2) * cellSize;
+                yawObject.position.set(spawnX, player.height, spawnZ);
+            }
+            
+            // Generate portals for non-Euclidean connections
+            generatePortals();
+        }
+        
+        function generatePortals() {
+            mapData.portals = [];
+            
+            if (mapData.rooms.length < 3) return;
+            
+            let seed = mapData.seed * 999;
+            const cellSize = mapData.gridSize;
+            
+            // Create 3-5 portal pairs connecting distant rooms
+            const numPortalPairs = 3 + Math.floor(seededRandom(seed++) * 3);
+            
+            for (let i = 0; i < numPortalPairs; i++) {
+                // Pick two random rooms that aren't adjacent
+                const roomAIdx = Math.floor(seededRandom(seed++) * mapData.rooms.length);
+                let roomBIdx = Math.floor(seededRandom(seed++) * mapData.rooms.length);
+                
+                // Make sure they're different rooms and somewhat far apart
+                let attempts = 0;
+                while ((roomBIdx === roomAIdx || Math.abs(roomBIdx - roomAIdx) < 2) && attempts < 10) {
+                    roomBIdx = Math.floor(seededRandom(seed++) * mapData.rooms.length);
+                    attempts++;
+                }
+                
+                const roomA = mapData.rooms[roomAIdx];
+                const roomB = mapData.rooms[roomBIdx];
+                
+                // Choose random walls in each room
+                const wallChoice = Math.floor(seededRandom(seed++) * 4);
+                const directions = [
+                    { normal: new THREE.Vector3(0, 0, -1), offset: { x: 0, z: -0.5 } }, // North
+                    { normal: new THREE.Vector3(1, 0, 0), offset: { x: 0.5, z: 0 } },   // East
+                    { normal: new THREE.Vector3(0, 0, 1), offset: { x: 0, z: 0.5 } },   // South
+                    { normal: new THREE.Vector3(-1, 0, 0), offset: { x: -0.5, z: 0 } }  // West
+                ];
+                
+                const dirA = directions[wallChoice];
+                const dirB = directions[(wallChoice + 2) % 4]; // Opposite wall
+                
+                // Portal A position (in room A)
+                const portalAX = (roomA.centerX - mapData.mapWidth / 2) * cellSize + dirA.offset.x * cellSize;
+                const portalAZ = (roomA.centerZ - mapData.mapDepth / 2) * cellSize + dirA.offset.z * cellSize;
+                const portalAPos = new THREE.Vector3(portalAX, 2, portalAZ);
+                
+                // Portal B position (in room B)
+                const portalBX = (roomB.centerX - mapData.mapWidth / 2) * cellSize + dirB.offset.x * cellSize;
+                const portalBZ = (roomB.centerZ - mapData.mapDepth / 2) * cellSize + dirB.offset.z * cellSize;
+                const portalBPos = new THREE.Vector3(portalBX, 2, portalBZ);
+                
+                // Create bi-directional portal pair
+                const portalWidth = 3 + seededRandom(seed++) * 2;
+                const portalHeight = 3 + seededRandom(seed++);
+                
+                const portalAB = new Portal(
+                    portalAPos, 
+                    portalBPos,
+                    dirA.normal,
+                    dirB.normal,
+                    portalWidth,
+                    portalHeight
+                );
+                
+                const portalBA = new Portal(
+                    portalBPos,
+                    portalAPos,
+                    dirB.normal,
+                    dirA.normal,
+                    portalWidth,
+                    portalHeight
+                );
+                
+                scene.add(portalAB.mesh);
+                scene.add(portalBA.mesh);
+                
+                mapData.portals.push(portalAB);
+                mapData.portals.push(portalBA);
+            }
+            
+            // Create impossible space - a room that's bigger on the inside
+            if (mapData.rooms.length >= 2) {
+                const room = mapData.rooms[1];
+                const cellSize = mapData.gridSize;
+                
+                // Create a small doorway on one wall
+                const doorX = (room.x - mapData.mapWidth / 2) * cellSize;
+                const doorZ = (room.centerZ - mapData.mapDepth / 2) * cellSize;
+                const doorPos = new THREE.Vector3(doorX, 2, doorZ);
+                
+                // Exit leads to a massive hidden space far outside the normal map
+                const hiddenX = 200; // Way outside normal bounds
+                const hiddenZ = 200;
+                const exitPos = new THREE.Vector3(hiddenX, 2, hiddenZ);
+                
+                // Create huge room in hidden space
+                const hugeRoomSize = 40;
+                const hugeFloor = new THREE.Mesh(
+                    new THREE.PlaneGeometry(hugeRoomSize, hugeRoomSize),
+                    new THREE.MeshStandardMaterial({ color: 0x1a1a2a })
+                );
+                hugeFloor.rotation.x = -Math.PI / 2;
+                hugeFloor.position.set(hiddenX, 0, hiddenZ);
+                hugeFloor.receiveShadow = true;
+                scene.add(hugeFloor);
+                
+                // Walls for huge room
+                const hugeWallMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x2a2a3a,
+                    emissive: 0x0a0a1a
+                });
+                
+                for (let i = 0; i < 4; i++) {
+                    const wall = new THREE.Mesh(
+                        new THREE.BoxGeometry(hugeRoomSize, 10, 1),
+                        hugeWallMaterial
+                    );
+                    wall.rotation.y = i * Math.PI / 2;
+                    const offset = hugeRoomSize / 2;
+                    if (i === 0) wall.position.set(hiddenX, 5, hiddenZ - offset);
+                    if (i === 1) wall.position.set(hiddenX + offset, 5, hiddenZ);
+                    if (i === 2) wall.position.set(hiddenX, 5, hiddenZ + offset);
+                    if (i === 3) wall.position.set(hiddenX - offset, 5, hiddenZ);
+                    wall.castShadow = true;
+                    scene.add(wall);
+                }
+                
+                // Eerie lighting in the huge room
+                const hugeLight = new THREE.PointLight(0xff00ff, 2, 50);
+                hugeLight.position.set(hiddenX, 8, hiddenZ);
+                scene.add(hugeLight);
+                
+                // Portal into the huge space
+                const portalIn = new Portal(
+                    doorPos,
+                    exitPos,
+                    new THREE.Vector3(-1, 0, 0),
+                    new THREE.Vector3(0, 0, 1),
+                    3, 3.5
+                );
+                
+                // Return portal (back wall of huge room)
+                const returnPos = new THREE.Vector3(hiddenX, 2, hiddenZ - hugeRoomSize/2 + 2);
+                const portalOut = new Portal(
+                    returnPos,
+                    doorPos,
+                    new THREE.Vector3(0, 0, -1),
+                    new THREE.Vector3(1, 0, 0),
+                    3, 3.5
+                );
+                
+                scene.add(portalIn.mesh);
+                scene.add(portalOut.mesh);
+                
+                mapData.portals.push(portalIn);
+                mapData.portals.push(portalOut);
+            }
+        }
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.left = -50;
+        directionalLight.shadow.camera.right = 50;
+        directionalLight.shadow.camera.top = 50;
+        directionalLight.shadow.camera.bottom = -50;
+        scene.add(directionalLight);
+        
+        // Muzzle flash
+        const muzzleFlash = new THREE.PointLight(0xffff00, 0, 5);
+        camera.add(muzzleFlash);
+        muzzleFlash.position.set(0.3, -0.2, -0.5);
+        
+        // Weapon morphing system
+        function morphWeapon() {
+            const w = game.weapon;
+            
+            // Randomly generate new stats within ranges
+            w.damage = Math.floor(5 + Math.random() * 90); // 5-95
+            w.fireRate = Math.floor(100 + Math.random() * 1900); // 100-2000ms
+            w.projectileSpeed = Math.floor(10 + Math.random() * 70); // 10-80
+            w.spread = Math.floor(Math.random() * 16); // 0-15 degrees
+            w.magSize = Math.floor(3 + Math.random() * 28); // 3-30
+            
+            // Refill ammo on morph
+            w.maxAmmo = w.magSize;
+            w.ammo = w.maxAmmo;
+            w.reloading = false;
+            
+            // Visual feedback
+            const statsPanel = document.getElementById('weapon-stats');
+            statsPanel.classList.add('morphing');
+            setTimeout(() => statsPanel.classList.remove('morphing'), 500);
+            
+            // Camera shake
+            const originalY = camera.position.y;
+            const shakeIntensity = 0.1;
+            const shakeDuration = 200;
+            const shakeStart = Date.now();
+            
+            function shake() {
+                const elapsed = Date.now() - shakeStart;
+                if (elapsed < shakeDuration) {
+                    camera.position.y = originalY + (Math.random() - 0.5) * shakeIntensity;
+                    requestAnimationFrame(shake);
+                } else {
+                    camera.position.y = originalY;
+                }
+            }
+            shake();
+            
+            updateWeaponStatsUI();
+            updateUI();
+        }
+        
+        // Update weapon stats UI
+        function updateWeaponStatsUI() {
+            const w = game.weapon;
+            
+            // Update values and bars
+            document.getElementById('damage-val').textContent = w.damage;
+            document.getElementById('damage-bar').style.width = ((w.damage - 5) / 90 * 100) + '%';
+            
+            // Fire rate is inverse (lower is better), so invert the bar
+            const fireRateNormalized = 100 - ((w.fireRate - 100) / 1900 * 100);
+            document.getElementById('firerate-val').textContent = Math.floor(60000 / w.fireRate) + ' RPM';
+            document.getElementById('firerate-bar').style.width = fireRateNormalized + '%';
+            
+            document.getElementById('speed-val').textContent = w.projectileSpeed;
+            document.getElementById('speed-bar').style.width = ((w.projectileSpeed - 10) / 70 * 100) + '%';
+            
+            // Spread is inverse (lower is better)
+            document.getElementById('spread-val').textContent = w.spread + '°';
+            document.getElementById('spread-bar').style.width = (100 - (w.spread / 15 * 100)) + '%';
+            
+            document.getElementById('mag-val').textContent = w.magSize;
+            document.getElementById('mag-bar').style.width = ((w.magSize - 3) / 27 * 100) + '%';
+        }
+        
+        // Shooting
+        const projectiles = [];
+        
+        function shoot() {
+            const now = Date.now();
+            if (now - game.weapon.lastShot < game.weapon.fireRate) return;
+            if (game.weapon.ammo <= 0) return;
+            if (game.weapon.reloading) return;
+            
+            game.weapon.ammo--;
+            game.weapon.lastShot = now;
+            updateUI();
+            
+            // Muzzle flash
+            muzzleFlash.intensity = 10;
+            setTimeout(() => muzzleFlash.intensity = 0, 50);
+            
+            // Apply spread
+            const spreadRad = (game.weapon.spread * Math.PI / 180);
+            const spreadX = (Math.random() - 0.5) * spreadRad;
+            const spreadY = (Math.random() - 0.5) * spreadRad;
+            
+            // Raycast for hit detection with spread
+            const raycaster = new THREE.Raycaster();
+            const direction = new THREE.Vector3(0, 0, -1);
+            direction.applyQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()));
+            
+            // Apply spread to direction
+            const spreadQuaternion = new THREE.Quaternion();
+            spreadQuaternion.setFromEuler(new THREE.Euler(spreadY, spreadX, 0));
+            direction.applyQuaternion(spreadQuaternion);
+            
+            raycaster.set(camera.getWorldPosition(new THREE.Vector3()), direction);
+            
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            // Create bullet trail
+            const bulletGeometry = new THREE.BufferGeometry();
+            const bulletMaterial = new THREE.LineBasicMaterial({ color: 0xffff00 });
+            
+            const start = camera.getWorldPosition(new THREE.Vector3());
+            let end = start.clone().add(direction.multiplyScalar(100));
+            
+            if (intersects.length > 0) {
+                const hit = intersects[0];
+                end = hit.point;
+                
+                // Hit effect
+                if (hit.object.userData.isTarget) {
+                    const originalColor = hit.object.material.color.clone();
+                    hit.object.material.color.set(0xffffff);
+                    setTimeout(() => {
+                        hit.object.material.color.copy(originalColor);
+                    }, 100);
+                    
+                    // Apply physics impulse based on projectile speed
+                    const impulse = direction.clone().multiplyScalar(game.weapon.projectileSpeed * 0.02);
+                    hit.object.position.add(impulse);
+                }
+                
+                // Impact spark
+                const sparkGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+                const sparkMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+                const spark = new THREE.Mesh(sparkGeometry, sparkMaterial);
+                spark.position.copy(hit.point);
+                scene.add(spark);
+                setTimeout(() => scene.remove(spark), 100);
+            }
+            
+            const positions = new Float32Array([
+                start.x, start.y, start.z,
+                end.x, end.y, end.z
+            ]);
+            bulletGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const bulletTrail = new THREE.Line(bulletGeometry, bulletMaterial);
+            scene.add(bulletTrail);
+            setTimeout(() => scene.remove(bulletTrail), 100);
+        }
+        
+        function reload() {
+            if (game.weapon.reloading) return;
+            if (game.weapon.ammo === game.weapon.maxAmmo) return;
+            
+            game.weapon.reloading = true;
+            setTimeout(() => {
+                game.weapon.ammo = game.weapon.maxAmmo;
+                game.weapon.reloading = false;
+                updateUI();
+            }, 1500);
+        }
+        
+        // Input handling
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (e.code === 'KeyR') reload();
+            if (e.code === 'KeyM' && game.locked) regenerateMap();
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+        
+        document.addEventListener('mousedown', (e) => {
+            if (!game.locked) return;
+            if (e.button === 0) shoot();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!game.locked) return;
+            
+            const movementX = e.movementX || 0;
+            const movementY = e.movementY || 0;
+            
+            yaw -= movementX * 0.002;
+            pitch -= movementY * 0.002;
+            pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+            
+            pitchObject.rotation.x = pitch;
+            yawObject.rotation.y = yaw;
+        });
+        
+        // Pointer lock
+        document.addEventListener('click', () => {
+            if (!game.locked && !document.getElementById('lobby').classList.contains('hidden')) {
+                // Don't lock if lobby is visible
+                return;
+            }
+        });
+        
+        document.addEventListener('pointerlockchange', () => {
+            game.locked = document.pointerLockElement === document.body;
+        });
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('ammo').textContent = 
+                `${game.weapon.ammo}/${game.weapon.maxAmmo}${game.weapon.reloading ? ' [RELOADING...]' : ''}`;
+            document.getElementById('health').textContent = game.health;
+        }
+        
+        // Game loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (game.locked) {
+                // Update morph timer
+                const now = Date.now();
+                const timeSinceLastMorph = now - game.lastMorphTime;
+                const timeUntilNextMorph = game.morphInterval - timeSinceLastMorph;
+                
+                if (timeUntilNextMorph <= 0) {
+                    morphWeapon();
+                    game.lastMorphTime = now;
+                } else {
+                    // Update countdown display
+                    const secondsLeft = (timeUntilNextMorph / 1000).toFixed(1);
+                    document.getElementById('morph-countdown').textContent = secondsLeft + 's';
+                    
+                    // Update progress bar
+                    const progress = (timeSinceLastMorph / game.morphInterval) * 100;
+                    document.getElementById('morph-progress-fill').style.width = progress + '%';
+                }
+                
+                // Movement
+                moveDirection.set(0, 0, 0);
+                
+                if (keys['KeyW']) moveDirection.z -= 1;
+                if (keys['KeyS']) moveDirection.z += 1;
+                if (keys['KeyA']) moveDirection.x -= 1;
+                if (keys['KeyD']) moveDirection.x += 1;
+                
+                moveDirection.normalize();
+                moveDirection.applyQuaternion(yawObject.quaternion);
+                moveDirection.y = 0;
+                
+                player.velocity.x = moveDirection.x * player.speed;
+                player.velocity.z = moveDirection.z * player.speed;
+                
+                // Gravity
+                player.velocity.y -= 0.01;
+                
+                // Jump
+                if (keys['Space'] && player.canJump) {
+                    player.velocity.y = player.jumpVelocity;
+                    player.canJump = false;
+                }
+                
+                // Apply velocity
+                yawObject.position.add(player.velocity);
+                
+                // Ground collision
+                if (yawObject.position.y < player.height) {
+                    yawObject.position.y = player.height;
+                    player.velocity.y = 0;
+                    player.canJump = true;
+                }
+                
+                // Portal teleportation check
+                mapData.portals.forEach(portal => {
+                    if (portal.active && portal.checkTeleport(yawObject.position, player.velocity)) {
+                        const result = portal.teleport(yawObject.position, yaw);
+                        yawObject.position.copy(result.position);
+                        yaw += result.yawDelta;
+                        yawObject.rotation.y = yaw;
+                        
+                        // Prevent immediate re-teleport
+                        portal.active = false;
+                        setTimeout(() => portal.active = true, 500);
+                    }
+                });
+                
+                // Animate portal materials
+                mapData.portals.forEach((portal, idx) => {
+                    if (portal.mesh && portal.mesh.children[0]) {
+                        const time = Date.now() * 0.001;
+                        portal.mesh.children[0].material.opacity = 0.3 + Math.sin(time * 2 + idx) * 0.2;
+                    }
+                });
+                
+                // Send network updates
+                sendPlayerUpdate();
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize
+        initNetworking();
+        createEnvironment();
+        updateUI();
+        updateWeaponStatsUI();
+        animate();
+    </script>
+</body>
+</html>

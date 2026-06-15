@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cube Combat</title>
+    <link rel="stylesheet" href="css/cube-combat.css">
+</head>
+
+<body>
+    <div id="rainbow-overlay" class="rainbow-overlay"></div>
+    <div id="rainbow-text" class="rainbow-text"></div>
+
+    <div class="main-wrapper">
+        
+        <div id="p1-sidebar" class="sidebar p1">
+            <div class="sb-header-row">
+                <div id="p1-sb-icon" class="sb-icon"></div>
+                <div id="p1-sb-name" class="sb-name">P1</div>
+            </div>
+
+            <div class="sb-health-container">
+                <div id="p1-sb-health" class="sb-health-bar"></div>
+            </div>
+
+            <div class="sb-stat-box" id="p1-cd1-box">
+                <div class="sb-stat-label">Slash Cooldown</div>
+                <div id="p1-sb-cd1" class="sb-stat-value">READY</div>
+            </div>
+            <div class="sb-stat-box" id="p1-cd2-box">
+                <div class="sb-stat-label">Parry Cooldown</div>
+                <div id="p1-sb-cd2" class="sb-stat-value">READY</div>
+            </div>
+
+            <div class="sb-stat-box" id="p1-cd3-box" style="display:none;">
+                <div class="sb-stat-label">Slot 3</div>
+                <div id="p1-sb-cd3" class="sb-stat-value">READY</div>
+            </div>
+            <div class="sb-stat-box" id="p1-cd4-box" style="display:none;">
+                <div class="sb-stat-label">Slot 4</div>
+                <div id="p1-sb-cd4" class="sb-stat-value">READY</div>
+            </div>
+
+            
+            <div id="p1-combo-sidebar" class="sb-stat-box" style="display:none; border-color: gold;">
+                <div class="sb-stat-label" style="color:gold;">COMBO</div>
+                <div id="p1-combo-val" class="sb-stat-value" style="color:gold;">0</div>
+            </div>
+        </div>
+
+        <div id="game-container">
+            <div id="overtime-overlay" class="rainbow-overlay"></div>
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+            <div id="achievement-toast">
+                <div class="toast-icon">🏆</div>
+                <div class="toast-text">
+                    <div class="toast-title">ACHIEVEMENT UNLOCKED</div>
+                    <div id="toast-message">First Blood</div>
+                </div>
+            </div>
+
+            
+            <div id="sandbox-menu">
+                <div class="sb-header">Sandbox Control Panel</div>
+                <div style="text-align:center; margin-bottom:10px; color:#aaa; font-style:italic;">Press 'R' to toggle
+                    this
+                    menu</div>
+                <div class="sb-content">
+                    <div class="sb-list" id="sb-cube-list">
+                        
+                    </div>
+                    <div class="sb-details" id="sb-details-pane">
+                        
+                    </div>
+                </div>
+                <button class="btn btn-gray" style="width:100%; margin-top:10px; padding:10px;"
+                    onclick="toggleSandboxMenu()">CLOSE MENU</button>
+            </div>
+
+            
+            <div id="ui-layer">
+                <div class="hud" id="hud">
+                    
+                    <div>
+                        <div style="color: blue" id="p1-name-display">P1 (Blue)</div>
+                        <div class="health-bar-container">
+                            <div id="p1-health" class="health-bar"></div>
+                            <div id="p1-minion-health" class="health-bar"
+                                style="background-color: #888; position: absolute; top: 0; left: 0; width: 0%; display: none;">
+                            </div>
+                        </div>
+                        <div id="p1-combo" class="combo-box">0</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: red" id="p2-name">AI (Red)</div>
+                        <div class="health-bar-container">
+                            <div id="p2-health" class="health-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu-overlay">
+
+                <div id="screen-main" class="menu-screen active">
+                    <div class="menu-title">CUBE COMBAT</div>
+
+                    <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
+                    <button class="btn btn-blue" onclick="prepareGame(null, 'screen-main')">COLLECTED CUBES</button>
+                    <button class="btn btn-pink"
+                        onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
+                    <button class="btn btn-red" onclick="confirmResetProgress()">RESET PROGRESS</button>
+                    <button class="btn btn-gray" onclick="quitGame()">QUIT</button>
+                </div>
+
+                <div id="screen-modes" class="menu-screen">
+                    <div class="sub-title">SELECT GAME MODE</div>
+
+                    <button class="btn btn-red" onclick="prepareGame('ai', 'screen-modes')">PLAYER VS AI</button>
+                    <button class="btn btn-blue" onclick="navTo('screen-pvp-submenu')">PLAYER VS PLAYER</button>
+                    <div style="height: 20px;"></div>
+                    <button class="btn btn-gray" onclick="navTo('screen-main')">BACK</button>
+                </div>
+
+                <div id="screen-pvp-submenu" class="menu-screen">
+                    <div class="sub-title">PLAYER VS PLAYER</div>
+
+                    <button class="btn btn-blue" onclick="prepareGame('pvp', 'screen-pvp-submenu')">LOCAL
+                        MULTIPLAYER</button>
+                    <button class="btn btn-cyan" onclick="prepareGame('p2p_setup', 'screen-pvp-submenu')">P2P
+                        MULTIPLAYER</button>
+                    <div style="height: 20px;"></div>
+                    <button class="btn btn-gray" onclick="navTo('screen-modes')">BACK</button>
+                </div>
+
+                <div id="screen-p2p-lobby" class="menu-screen">
+                    <div class="sub-title">P2P LOBBY</div>
+
+                    <div id="p2p-status-msg" class="p2p-status">Select Host or Join</div>
+
+                    <div id="p2p-host-section" style="display:none; text-align:center;">
+                        <div style="color:#aaa; font-size:14px;">Share this ID with your friend:</div>
+                        <input type="text" id="host-id-display" class="p2p-input" readonly value="Generating ID..."
+                            onclick="this.select()">
+                        <div style="color: #00aa00; margin-top:5px;">Waiting for connection...</div>
+                    </div>
+
+                    <div id="p2p-join-section" style="display:none; text-align:center;">
+                        <div style="color:#aaa; font-size:14px;">Enter Host ID:</div>
+                        <input type="text" id="join-id-input" class="p2p-input" placeholder="Paste ID here">
+                        <button class="btn btn-green" style="width:200px; margin: 10px auto;"
+                            onclick="connectToHost()">CONNECT</button>
+                    </div>
+
+                    <div id="p2p-buttons">
+                        <button class="btn btn-orange" onclick="initP2PHost()">HOST GAME</button>
+                        <button class="btn btn-cyan" onclick="initP2PJoin()">JOIN GAME</button>
+                    </div>
+
+                    <div style="height: 20px;"></div>
+                    <button class="btn btn-gray" onclick="resetP2P(); navTo('screen-pvp-submenu')">BACK</button>
+                </div>
+
+                <div id="screen-cubes" class="menu-screen">
+                    <div class="sub-title">COLLECTED CUBES</div>
+                    <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;"
+                        onclick="handleCubeBack()">BACK (ESC)</button>
+
+                    
+                    <button id="btn-confirm-selection" class="btn btn-green"
+                        style="width: 200px; position: absolute; bottom: 20px; right: 20px; display: none;"
+                        onclick="confirmSelection()">FIGHT!</button>
+
+                    
+                    <button class="btn btn-orange" style="width: 200px; position: absolute; top: 20px; right: 20px;"
+                        onclick="startGame('sandbox')">SANDBOX MODE</button>
+
+                    <div class="cubes-layout">
+                        <div class="cubes-grid" id="cubes-grid-container">
+                        </div>
+                        <div class="cube-details" id="cube-details-panel">
+                            <div style="text-align: center; margin-top: 50px; color: #aaa;">Select a cube to view
+                                details
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="screen-achievements" class="menu-screen">
+                    <div class="sub-title">ACHIEVEMENTS</div>
+                    <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;"
+                        onclick="navTo('screen-main')">BACK (ESC)</button>
+
+                    <div class="achievements-list" id="achievements-container">
+                    </div>
+                </div>
+
+                <div id="game-over-screen" class="hidden"
+                    style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:20;">
+                    <div id="winner-text" style="font-size: 50px; margin-bottom: 30px; font-weight:bold; color: white;">
+                        WINNER</div>
+
+                    <button id="restart-btn" class="btn btn-green" onclick="requestRestart()">RESTART (R)</button>
+
+                    <div id="waiting-msg"
+                        style="display:none; color: yellow; font-size: 24px; margin: 10px; font-weight: bold; text-shadow: 1px 1px 0 #000;">
+                        WAITING FOR HOST TO RESTART...</div>
+
+                    <button class="btn btn-gray" onclick="showMainMenu()">MAIN MENU</button>
+                </div>
+
+            </div>
+        </div>
+
+        
+        <div id="p2-sidebar" class="sidebar p2">
+            <div class="sb-header-row">
+                <div id="p2-sb-name" class="sb-name">P2</div>
+                <div id="p2-sb-icon" class="sb-icon" style="background:red; margin-right:0; margin-left:15px;"></div>
+            </div>
+
+            <div class="sb-health-container">
+                <div id="p2-sb-health" class="sb-health-bar" style="background:red;"></div>
+            </div>
+
+            <div id="p2-role-ai">
+                <div class="sb-stat-box">
+                    <div class="sb-stat-label">Action Status</div>
+                    <div id="p2-sb-status" class="sb-stat-value">--</div>
+                </div>
+            </div>
+
+            <div id="p2-role-human" style="display:none;">
+                <div class="sb-stat-box">
+                    <div class="sb-stat-label">Dash (K)</div>
+                    <div id="p2-sb-cd1" class="sb-stat-value">READY</div>
+                </div>
+                <div class="sb-stat-box">
+                    <div class="sb-stat-label">Laser (L)</div>
+                    <div id="p2-sb-cd2" class="sb-stat-value">READY</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="js/cube-combat.js"></script>
+</body>
+
+</html>

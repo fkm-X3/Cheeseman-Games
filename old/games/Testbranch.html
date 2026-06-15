@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Branch | CheeseMan Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/tailwind-config.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/shared.css">
+    <link rel="stylesheet" href="css/testbranch.css">
+    <script src="js/testbranch.js" defer></script>
+</head>
+
+<body class="hub-container flex flex-col overflow-hidden selection:bg-cheeseman-primary selection:text-white">
+
+<!-- Back Navigation -->
+<nav class="back-nav">
+    <a href="../index.html" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+</nav>
+
+<!-- Header -->
+<header class="hub-header">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cheeseman-primary to-cheeseman-accent flex items-center justify-center shadow-lg shadow-cheeseman-primary/30">
+            <i class="fa-solid fa-flask text-white"></i>
+        </div>
+        <div>
+            <h1 class="hub-title">Test Branch</h1>
+        </div>
+    </div>
+    <span class="hub-badge">Beta</span>
+    
+    <div class="ml-auto flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-xs text-cheeseman-muted">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span>Systems Online</span>
+        </div>
+    </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden relative">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="hub-sidebar">
+        <div class="sidebar-section flex-1 overflow-y-auto">
+            <h2 class="sidebar-label">Available Simulations</h2>
+
+            <ul class="space-y-2">
+                <li>
+                    <button onclick="loadGame('test/cube-combat-2.html')" ondblclick="closeGame()" class="game-list-item group">
+                        <div class="game-list-icon icon-gradient-blue">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        <div class="game-list-info">
+                            <p class="game-list-name">Cube Combat 2</p>
+                            <p class="game-list-desc">The Blue Saga</p>
+                        </div>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="loadGame('test/asset-flip-7.html')" ondblclick="closeGame()" class="game-list-item group">
+                        <div class="game-list-icon icon-gradient-green">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div class="game-list-info">
+                            <p class="game-list-name">Asset Flip 7</p>
+                            <p class="game-list-desc">Hotline Protocol</p>
+                        </div>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="mt-6 p-4 rounded-xl glass-panel border-cheeseman-primary/20">
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-cheeseman-primary mt-0.5 text-sm"></i>
+                    <p class="text-xs text-cheeseman-muted leading-relaxed">
+                        <strong class="text-cheeseman-content">Pro Tip:</strong> Double-click any sidebar button to force-quit the active simulation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="hub-main">
+        <div class="hub-content">
+            <!-- Explanation Panel -->
+            <div id="explanation-panel" class="max-w-2xl w-full">
+                <div class="glass-panel p-8 md:p-10 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cheeseman-primary via-cheeseman-accent to-pink-500 opacity-70"></div>
+
+                    <div class="flex items-center mb-8">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-cheeseman-primary to-cheeseman-accent flex items-center justify-center shadow-lg shadow-cheeseman-primary/30 mr-5">
+                            <i class="fa-solid fa-microchip text-3xl text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-cheeseman-content tracking-tight">Test Environment</h3>
+                            <p class="text-cheeseman-muted text-sm mt-1 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cheeseman-primary"></span> Ready for injection
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                            <span class="step-badge">1</span>
+                            <div>
+                                <h4 class="text-cheeseman-content font-semibold mb-1">Initialize Simulation</h4>
+                                <p class="text-sm text-cheeseman-muted leading-relaxed">Select a game from the sidebar menu to inject the code into the main viewport.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                            <span class="step-badge">2</span>
+                            <div>
+                                <h4 class="text-cheeseman-content font-semibold mb-1">Sandboxed Execution</h4>
+                                <p class="text-sm text-cheeseman-muted leading-relaxed">Games run in an isolated frame. Performance metrics are not tracked in this mode.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                            <span class="step-badge step-badge-danger">3</span>
+                            <div>
+                                <h4 class="text-cheeseman-content font-semibold mb-1">Emergency Stop</h4>
+                                <p class="text-sm text-cheeseman-muted leading-relaxed">To abort a running simulation, use the back button or double-click the game selector.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-cheeseman-highlight/30 flex justify-between items-center text-xs text-cheeseman-muted">
+                        <span>ID: TEST-BRANCH-ALPHA</span>
+                        <span class="animate-pulse text-cheeseman-primary">AWAITING USER INPUT...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Frame -->
+            <iframe id="game-frame" src="" class="game-frame hidden" title="Game Content Area"></iframe>
+        </div>
+    </main>
+</div>
+</body>
+</html>

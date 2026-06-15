@@ -1,0 +1,316 @@
+{
+  "characters": [
+    {
+      "id": 1,
+      "name": "Sword Master",
+      "color": "blue",
+      "maxHP": 100,
+      "unlockCondition": "default",
+      "description": "A balanced fighter with offensive and defensive options",
+      "abilities": {
+        "attack1": {
+          "name": "Slash",
+          "key": "Space",
+          "damage": 25,
+          "cooldown": 30,
+          "description": "Standard melee attack with good range"
+        },
+        "attack2": {
+          "name": "Parry",
+          "key": "F",
+          "damage": 0,
+          "cooldown": 180,
+          "description": "Reflects attacks and stuns enemy for 1 second"
+        }
+      },
+      "stats": {
+        "speed": 5,
+        "jump": 14,
+        "weight": 1.0
+      }
+    },
+    {
+      "id": 2,
+      "name": "Angry Sniper",
+      "color": "red",
+      "maxHP": 100,
+      "unlockCondition": "default",
+      "description": "Aggressive rushdown character with instant dash",
+      "abilities": {
+        "attack1": {
+          "name": "Dash",
+          "key": "Space",
+          "damage": 15,
+          "cooldown": 0,
+          "description": "Quick burst charge with no cooldown"
+        },
+        "attack2": {
+          "name": "Laser",
+          "key": "F",
+          "damage": 30,
+          "cooldown": 120,
+          "description": "Long range beam with windup animation"
+        }
+      },
+      "stats": {
+        "speed": 6,
+        "jump": 14,
+        "weight": 0.9
+      }
+    },
+    {
+      "id": 3,
+      "name": "Sniper Cube",
+      "color": "green",
+      "maxHP": 100,
+      "unlockCondition": "achievement:1",
+      "description": "Zoning character with powerful charged laser",
+      "abilities": {
+        "attack1": {
+          "name": "Slash",
+          "key": "Space",
+          "damage": 20,
+          "cooldown": 40,
+          "description": "Standard melee attack"
+        },
+        "attack2": {
+          "name": "Charged Laser",
+          "key": "F",
+          "damage": 25,
+          "cooldown": 150,
+          "description": "Charges then fires full-screen beam"
+        }
+      },
+      "stats": {
+        "speed": 4,
+        "jump": 13,
+        "weight": 1.0
+      }
+    },
+    {
+      "id": 4,
+      "name": "Magic Cube",
+      "color": "hotpink",
+      "maxHP": 100,
+      "unlockCondition": "achievement:2",
+      "description": "Defensive character with energy shield",
+      "abilities": {
+        "attack1": {
+          "name": "Slash",
+          "key": "Space",
+          "damage": 22,
+          "cooldown": 35,
+          "description": "Standard melee attack"
+        },
+        "attack2": {
+          "name": "Block",
+          "key": "F",
+          "damage": 0,
+          "cooldown": 0,
+          "description": "Energy shield that drains over time"
+        }
+      },
+      "stats": {
+        "speed": 4,
+        "jump": 12,
+        "weight": 1.1
+      }
+    },
+    {
+      "id": 5,
+      "name": "The Jorker",
+      "color": "#8B4513",
+      "maxHP": 75,
+      "unlockCondition": "achievement:3",
+      "description": "Glass cannon with high knockback attacks",
+      "abilities": {
+        "attack1": {
+          "name": "Kick",
+          "key": "Space",
+          "damage": 15,
+          "cooldown": 25,
+          "description": "Short range with high knockback and stun"
+        },
+        "attack2": {
+          "name": "Laser",
+          "key": "F",
+          "damage": 25,
+          "cooldown": 100,
+          "description": "Yellow beam projectile"
+        }
+      },
+      "stats": {
+        "speed": 5,
+        "jump": 15,
+        "weight": 0.8
+      }
+    },
+    {
+      "id": 6,
+      "name": "Ima Touch You",
+      "color": "indigo",
+      "maxHP": 75,
+      "unlockCondition": "achievement:4",
+      "description": "Control character that inverts enemy inputs",
+      "abilities": {
+        "attack1": {
+          "name": "Slash",
+          "key": "Space",
+          "damage": 20,
+          "cooldown": 30,
+          "description": "Standard melee attack"
+        },
+        "attack2": {
+          "name": "Pull",
+          "key": "F",
+          "damage": 0,
+          "cooldown": 200,
+          "description": "Drags enemy close and inverts controls"
+        }
+      },
+      "stats": {
+        "speed": 5,
+        "jump": 14,
+        "weight": 0.85
+      }
+    },
+    {
+      "id": 7,
+      "name": "Vigilante",
+      "color": "#2F4F4F",
+      "maxHP": 125,
+      "unlockCondition": "achievement:5",
+      "description": "Tank character with drone support",
+      "abilities": {
+        "attack1": {
+          "name": "Takedown",
+          "key": "Space",
+          "damage": 20,
+          "cooldown": 60,
+          "description": "High speed dash attack with knockback"
+        },
+        "attack2": {
+          "name": "Drone",
+          "key": "F",
+          "damage": 5,
+          "cooldown": 300,
+          "description": "Deploys auto-shooting drone"
+        }
+      },
+      "stats": {
+        "speed": 4,
+        "jump": 12,
+        "weight": 1.3
+      }
+    },
+    {
+      "id": 8,
+      "name": "Fbt_7",
+      "color": "black",
+      "maxHP": 200,
+      "unlockCondition": "dev",
+      "description": "Developer boss character with multiple abilities",
+      "abilities": {
+        "attack1": {
+          "name": "Delete",
+          "key": "Space",
+          "damage": 30,
+          "cooldown": 45,
+          "description": "Poison slash that deals DoT"
+        },
+        "attack2": {
+          "name": "Error 404",
+          "key": "F",
+          "damage": 25,
+          "cooldown": 180,
+          "description": "Creates control-inverting clone"
+        },
+        "special1": {
+          "name": "Hatred",
+          "key": "Q",
+          "damage": 0,
+          "cooldown": 360,
+          "description": "Rage mode: 2x damage, increased speed"
+        },
+        "special2": {
+          "name": "Termination",
+          "key": "E",
+          "damage": 50,
+          "cooldown": 600,
+          "description": "Ultimate attack with screen effects"
+        }
+      },
+      "stats": {
+        "speed": 6,
+        "jump": 16,
+        "weight": 1.5
+      }
+    },
+    {
+      "id": 9,
+      "name": "Master Cube",
+      "color": "#FFD700",
+      "maxHP": 100,
+      "unlockCondition": "achievement:7",
+      "description": "Swap between minions with different abilities",
+      "abilities": {
+        "attack1": {
+          "name": "Overtime",
+          "key": "Space",
+          "damage": 0,
+          "cooldown": 240,
+          "description": "Buffs current minion stats to 100%"
+        },
+        "attack2": {
+          "name": "Call Back",
+          "key": "F",
+          "damage": 0,
+          "cooldown": 180,
+          "description": "Swaps to random minion character"
+        }
+      },
+      "stats": {
+        "speed": 5,
+        "jump": 14,
+        "weight": 1.0
+      }
+    },
+    {
+      "id": 10,
+      "name": "Bobbythe124",
+      "color": "#CCCCFF",
+      "maxHP": 149,
+      "unlockCondition": "dev",
+      "description": "Dev character with scaling jumps and powerful attacks",
+      "abilities": {
+        "attack1": {
+          "name": "Silence",
+          "key": "Space",
+          "damage": 35,
+          "cooldown": 50,
+          "description": "Heavy hitting melee attack"
+        },
+        "attack2": {
+          "name": "Beam",
+          "key": "F",
+          "damage": 50,
+          "cooldown": 150,
+          "description": "Highest damage beam in the game"
+        },
+        "special2": {
+          "name": "Bleed",
+          "key": "E",
+          "damage": 10,
+          "cooldown": 200,
+          "description": "Poison DoT effect"
+        }
+      },
+      "stats": {
+        "speed": 5,
+        "jump": 14,
+        "weight": 1.2,
+        "jumpScaling": 1.5
+      }
+    }
+  ]
+}

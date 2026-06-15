@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleek Game Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="desktop" id="desktop">
+    <!-- Desktop Icons -->
+    <div class="app-icon" onclick="openWindow('fentsim', '../fent-sim/index.html', 'FENT SIM')">
+        <div class="icon-placeholder icon-fent">🧟</div>
+        <span class="text-white text-[12px] font-bold">Fent Sim</span>
+    </div>
+
+    <div class="app-icon" onclick="openWindow('gd', '../gd/index.html', 'Geometry Dash')">
+        <div class="icon-placeholder icon-gd">📐</div>
+        <span class="text-white text-[12px] font-bold">GD Clone</span>
+    </div>
+
+    <div class="app-icon" onclick="openWindow('gdeditor', '../gd-editor/index.html', 'Level Editor')">
+        <div class="icon-placeholder icon-editor">🛠️</div>
+        <span class="text-white text-[12px] font-bold">GD Editor</span>
+    </div>
+
+    <div class="app-icon" onclick="openWindow('casino', '../sketchy-casino-legacy/index.html', 'Sketchy Casino')">
+        <div class="icon-placeholder icon-casino">🎰</div>
+        <span class="text-white text-[12px] font-bold">Casino</span>
+    </div>
+</div>
+
+<div class="taskbar">
+    <div class="flex gap-3" id="taskbar-items">
+        <!-- Minimized apps appear here -->
+    </div>
+</div>
+
+<script src="./script.js"></script>
+</body>
+</html>

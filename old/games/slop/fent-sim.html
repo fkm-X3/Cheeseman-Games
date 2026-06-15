@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FENT SIM</title>
+    <link rel="stylesheet" href="css/fent-sim.css">
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="ui">
+            <div class="health-bar">
+                <div class="health-fill" id="playerHealth"></div>
+            </div>
+            <div id="score">SCORE: 0</div>
+            <div id="wave">WAVE: 1</div>
+        </div>
+
+        <div id="overlay">
+            <h1>FENT SIM</h1>
+            <p style="margin-bottom: 30px;">WASD to Move | CLICK to Fight</p>
+            <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 30px;">(The zombies, their coming)</p>
+            <button id="startBtn">START TRIP</button>
+        </div>
+    </div>
+
+    <script src="js/fent-sim.js"></script>
+</body>
+
+</html>
