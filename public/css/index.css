@@ -1,20 +1,24 @@
+/* ============================================================
+ * CheeseMan Games - Main Stylesheet
+ * ============================================================
+ * Defines the theming system, glass-morphism utilities,
+ * scrollbar styling, playing-card components, and keyframe
+ * animations used across the application.
+ * ============================================================ */
+
+/* ============================================================
+ * Default Theme (Dark)
+ * ============================================================ */
 
 :root {
-    
     --color-base: #09090b;
-    
     --color-card: #18181b;
-    
     --color-highlight: #27272a;
-    
     --color-primary: #6366f1;
-    
     --color-accent: #ec4899;
-    
 
     --text-main: #ffffff;
     --text-muted: #94a3b8;
-    
 
     --glass-bg: rgba(24, 24, 27, 0.6);
     --glass-border: rgba(255, 255, 255, 0.05);
@@ -26,22 +30,19 @@
     --scrollbar-thumb-hover: #6366f1;
 }
 
+/* ============================================================
+ * Theme: Light
+ * ============================================================ */
+
 [data-theme="light"] {
     --color-base: #f4f4f5;
-    
     --color-card: #ffffff;
-    
     --color-highlight: #e4e4e7;
-    
     --color-primary: #4f46e5;
-    
     --color-accent: #db2777;
-    
 
     --text-main: #18181b;
-    
     --text-muted: #64748b;
-    
 
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: rgba(0, 0, 0, 0.05);
@@ -53,17 +54,16 @@
     --scrollbar-thumb-hover: #4f46e5;
 }
 
+/* ============================================================
+ * Theme: Midnight
+ * ============================================================ */
+
 [data-theme="midnight"] {
     --color-base: #020617;
-    
     --color-card: #0f172a;
-    
     --color-highlight: #1e293b;
-    
     --color-primary: #38bdf8;
-    
     --color-accent: #818cf8;
-    
 
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
@@ -78,17 +78,16 @@
     --scrollbar-thumb-hover: #38bdf8;
 }
 
+/* ============================================================
+ * Theme: Forest
+ * ============================================================ */
+
 [data-theme="forest"] {
     --color-base: #052e16;
-    
     --color-card: #14532d;
-    
     --color-highlight: #166534;
-    
     --color-primary: #4ade80;
-    
     --color-accent: #facc15;
-    
 
     --text-main: #f0fdf4;
     --text-muted: #bbf7d0;
@@ -102,6 +101,10 @@
     --scrollbar-thumb: #14532d;
     --scrollbar-thumb-hover: #4ade80;
 }
+
+/* ============================================================
+ * Theme: Sunset
+ * ============================================================ */
 
 [data-theme="sunset"] {
     --color-base: #2a1b3d;
@@ -123,6 +126,10 @@
     --scrollbar-thumb-hover: #d83f87;
 }
 
+/* ============================================================
+ * Theme: Neon
+ * ============================================================ */
+
 [data-theme="neon"] {
     --color-base: #000000;
     --color-card: #121212;
@@ -142,6 +149,10 @@
     --scrollbar-thumb: #121212;
     --scrollbar-thumb-hover: #0ff0fc;
 }
+
+/* ============================================================
+ * Theme: Ocean
+ * ============================================================ */
 
 [data-theme="ocean"] {
     --color-base: #0f1c2e;
@@ -163,22 +174,19 @@
     --scrollbar-thumb-hover: #4d9de0;
 }
 
+/* ============================================================
+ * Theme: Boykisser 67 (Meme Theme)
+ * ============================================================ */
+
 [data-theme="boykisser67"] {
     --color-base: #fce4ec;
-    
     --color-card: #ffffff;
-    
     --color-highlight: #f8bbd0;
-    
     --color-primary: #f06292;
-    
     --color-accent: #ba68c8;
-    
 
     --text-main: #4a148c;
-    
     --text-muted: #880e4f;
-    
 
     --glass-bg: rgba(255, 255, 255, 0.8);
     --glass-border: rgba(240, 98, 146, 0.2);
@@ -190,6 +198,9 @@
     --scrollbar-thumb-hover: #f06292;
 }
 
+/* ============================================================
+ * Custom Scrollbar (Webkit)
+ * ============================================================ */
 
 ::-webkit-scrollbar {
     width: 8px;
@@ -209,6 +220,9 @@
     background: var(--scrollbar-thumb-hover);
 }
 
+/* ============================================================
+ * Glass Morphism Utilities
+ * ============================================================ */
 
 .glass {
     background: var(--glass-bg);
@@ -223,6 +237,9 @@
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
 }
 
+/* ============================================================
+ * Scrollbar Hiding Utility
+ * ============================================================ */
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -233,16 +250,25 @@
     scrollbar-width: none;
 }
 
+/* ============================================================
+ * Game Active State
+ * ============================================================ */
 
 .game-active body {
     overflow: hidden;
 }
 
+/* ============================================================
+ * Tap Highlight Reset
+ * ============================================================ */
 
 body {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ============================================================
+ * Playing Card Component
+ * ============================================================ */
 
 .playing-card {
     background: white;
@@ -270,9 +296,10 @@ body {
     transform: translateY(-4px);
     box-shadow: 0 0 10px #fbbf24;
 }
-/* ======================== */
-/* VERSION POPUP ANIMATIONS */
-/* ======================== */
+
+/* ============================================================
+ * Version Popup Animations
+ * ============================================================ */
 
 @keyframes fade-in {
     from {

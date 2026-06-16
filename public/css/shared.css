@@ -1,7 +1,15 @@
-/* CheeseMan Games - Shared Hub Page Styles */
-/* Import this in hub pages along with css/index.css for consistent theming */
+/* ============================================================
+ * CheeseMan Games - Shared Hub Page Styles
+ * ============================================================
+ * Import this alongside css/index.css in hub pages to get
+ * consistent theming for layout, navigation, windows, cards,
+ * game lists, and placeholder states.
+ * ============================================================ */
 
-/* Hub Page Layout */
+/* ============================================================
+ * Hub Page Layout
+ * ============================================================ */
+
 .hub-container {
     min-height: 100vh;
     background: var(--color-base);
@@ -9,7 +17,10 @@
     font-family: 'Outfit', sans-serif;
 }
 
-/* Back Navigation */
+/* ============================================================
+ * Back Navigation
+ * ============================================================ */
+
 .back-nav {
     position: fixed;
     top: 1rem;
@@ -49,7 +60,10 @@
     transform: translateX(-3px);
 }
 
-/* Hub Header */
+/* ============================================================
+ * Hub Header
+ * ============================================================ */
+
 .hub-header {
     height: 4rem;
     background: var(--glass-bg);
@@ -83,7 +97,10 @@
     margin-left: 0.75rem;
 }
 
-/* Glass Panel */
+/* ============================================================
+ * Glass Panel
+ * ============================================================ */
+
 .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -102,7 +119,10 @@
     box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
 }
 
-/* Icon Cards (for desktop-style layouts) */
+/* ============================================================
+ * Icon Cards (Desktop-style layout)
+ * ============================================================ */
+
 .icon-card {
     display: flex;
     flex-direction: column;
@@ -143,7 +163,8 @@
     color: var(--text-main);
 }
 
-/* Gradient backgrounds for icon boxes */
+/* ---- Gradient backgrounds for icon boxes ---- */
+
 .icon-gradient-red { background: linear-gradient(135deg, #ef4444, #991b1b); }
 .icon-gradient-green { background: linear-gradient(135deg, #22c55e, #166534); }
 .icon-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1e40af); }
@@ -152,7 +173,10 @@
 .icon-gradient-pink { background: linear-gradient(135deg, #ec4899, #be185d); }
 .icon-gradient-primary { background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); }
 
-/* Taskbar / Bottom Bar */
+/* ============================================================
+ * Taskbar / Bottom Bar
+ * ============================================================ */
+
 .hub-taskbar {
     position: fixed;
     bottom: 0;
@@ -193,7 +217,10 @@
     transform: translateY(-2px);
 }
 
-/* Window Styling */
+/* ============================================================
+ * Window Styling (Draggable hub windows)
+ * ============================================================ */
+
 .hub-window {
     position: absolute;
     background: var(--glass-bg);
@@ -253,7 +280,10 @@
     background: var(--color-base);
 }
 
-/* Sidebar (for testbranch-style layouts) */
+/* ============================================================
+ * Sidebar (For testbranch-style layouts)
+ * ============================================================ */
+
 .hub-sidebar {
     width: 280px;
     background: var(--glass-bg);
@@ -278,7 +308,10 @@
     margin-bottom: 1rem;
 }
 
-/* Game List Items */
+/* ============================================================
+ * Game List Items
+ * ============================================================ */
+
 .game-list-item {
     display: flex;
     align-items: center;
@@ -333,7 +366,10 @@
     text-overflow: ellipsis;
 }
 
-/* Main Content Area */
+/* ============================================================
+ * Main Content Area
+ * ============================================================ */
+
 .hub-main {
     flex: 1;
     display: flex;
@@ -350,7 +386,10 @@
     padding: 2rem;
 }
 
-/* Placeholder State */
+/* ============================================================
+ * Placeholder State (Empty / loading states)
+ * ============================================================ */
+
 .placeholder-state {
     text-align: center;
     color: var(--text-muted);
@@ -373,7 +412,10 @@
     font-size: 0.875rem;
 }
 
-/* Game Frame */
+/* ============================================================
+ * Game Frame
+ * ============================================================ */
+
 .game-frame {
     width: 100%;
     height: 100%;

@@ -1,43 +1,991 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <!-- ============================================================
+         Meta
+         ============================================================ -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CheeseMan Games</title>
 
-  <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+    <!-- Tailwind CDN + custom config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
 
-      <div class="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/src/assets/vite.svg" class="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img
-            src="/src/assets/tauri.svg"
-            class="logo tauri"
-            alt="Tauri logo"
-          />
-        </a>
-        <a href="https://www.typescriptlang.org/docs" target="_blank">
-          <img
-            src="/src/assets/typescript.svg"
-            class="logo typescript"
-            alt="typescript logo"
-          />
-        </a>
-      </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body class="bg-cheeseman-base text-cheeseman-content h-screen flex flex-col md:flex-row overflow-hidden selection:bg-indigo-500 selection:text-white font-sans">
+
+    <!-- ============================================================
+         Desktop Sidebar
+         ============================================================ -->
+    <aside class="hidden md:flex w-20 lg:w-72 flex-col glass z-20 border-r border-cheeseman-highlight/20 transition-all duration-300">
+
+        <!-- Sidebar: Logo -->
+        <div class="h-24 flex items-center justify-center lg:justify-start lg:px-8 border-b border-cheeseman-highlight/20 relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-r from-cheeseman-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            </div>
+            <div class="relative z-10 w-12 h-12 bg-gradient-to-br from-cheeseman-primary to-cheeseman-accent rounded-2xl flex items-center justify-center shadow-lg shadow-cheeseman-primary/30 group-hover:scale-110 transition-transform duration-300 transform rotate-3 group-hover:rotate-6">
+                <i class="fa-solid fa-gamepad text-white text-xl"></i>
+            </div>
+            <div class="ml-4 hidden lg:block">
+                <span class="block font-black text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 group-hover:to-white transition-all">CheeseMan</span>
+                <span class="block text-xs font-bold text-cheeseman-primary tracking-[0.2em] uppercase">Games</span>
+            </div>
+        </div>
+
+        <!-- Sidebar: Navigation -->
+        <nav class="flex-1 py-8 px-4 space-y-3">
+            <button onclick="switchTab('home')" class="nav-item w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group active relative overflow-hidden" id="desk-nav-home">
+                <div class="absolute inset-0 bg-gradient-to-r from-cheeseman-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-house text-xl w-8 text-center group-hover:text-cheeseman-primary transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">Home</span>
+            </button>
+            <button onclick="switchTab('games')" class="nav-item w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group relative overflow-hidden" id="desk-nav-games">
+                <div class="absolute inset-0 bg-gradient-to-r from-cheeseman-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-ghost text-xl w-8 text-center group-hover:text-cheeseman-accent transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">Games</span>
+            </button>
+            <button onclick="switchTab('community')" class="nav-item w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group relative overflow-hidden" id="desk-nav-community">
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-users text-xl w-8 text-center group-hover:text-emerald-400 transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">Community</span>
+            </button>
+            <button onclick="switchTab('socials')" class="nav-item w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group relative overflow-hidden" id="desk-nav-socials">
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-share-nodes text-xl w-8 text-center group-hover:text-cyan-400 transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">Socials</span>
+            </button>
+            <button onclick="switchTab('credits')" class="nav-item w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group relative overflow-hidden" id="desk-nav-credits">
+                <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-circle-info text-xl w-8 text-center group-hover:text-amber-400 transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">Credits</span>
+            </button>
+            <a href="games/slop-index.html" class="w-full flex items-center p-4 rounded-xl text-cheeseman-muted hover:text-white hover:bg-white/5 transition-all group relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <i class="fa-solid fa-trash-can-arrow-up text-xl w-8 text-center group-hover:text-pink-400 transition-colors relative z-10"></i>
+                <span class="ml-3 font-semibold hidden lg:block relative z-10">The Slop Index</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar: Profile / Settings -->
+        <div class="p-4 border-t border-cheeseman-highlight/20 bg-black/20">
+            <button onclick="switchTab('settings')" class="w-full flex items-center p-3 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-cheeseman-highlight/30 group">
+                <div class="relative">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-10 h-10 rounded-xl bg-cheeseman-primary/20 ring-2 ring-transparent group-hover:ring-cheeseman-primary/50 transition-all">
+                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#18181b]">
+                    </div>
+                </div>
+                <div class="ml-3 hidden lg:block text-left overflow-hidden">
+                    <p class="text-sm font-bold text-white truncate group-hover:text-cheeseman-primary transition-colors">PlayerOne</p>
+                    <p class="text-[10px] text-cheeseman-muted font-bold tracking-wide uppercase">Lvl 42 Premium</p>
+                </div>
+                <i class="fa-solid fa-gear ml-auto text-cheeseman-muted hover:text-white transition-colors hidden lg:block hover:rotate-90 duration-500"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+         Mobile Header
+         ============================================================ -->
+    <header class="md:hidden h-16 glass fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 border-b border-cheeseman-highlight/20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-cheeseman-primary to-cheeseman-accent rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-gamepad text-white text-sm"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight">CheeseMan Games</span>
+        </div>
+        <button onclick="switchTab('settings')" class="w-8 h-8 rounded-full overflow-hidden border border-cheeseman-highlight/30">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full bg-cheeseman-primary/20">
+        </button>
+    </header>
+
+    <!-- ============================================================
+         Main Content
+         ============================================================ -->
+    <main class="flex-1 relative overflow-y-auto overflow-x-hidden pt-16 pb-24 md:pt-0 md:pb-0 z-10" id="main-scroll">
+
+        <!-- ============================================================
+             View: Home
+             ============================================================ -->
+        <section id="view-home" class="p-6 lg:p-12 max-w-[1600px] mx-auto space-y-12 animate-fade-in relative z-10">
+
+            <!-- Hero Banner -->
+            <div class="relative w-full rounded-[32px] overflow-hidden h-[60vh] min-h-[500px] shadow-2xl shadow-cheeseman-primary/10 group isolate">
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2671&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-[3s] group-hover:scale-105">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-cheeseman-base via-cheeseman-base/60 to-transparent">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-cheeseman-base via-cheeseman-base/40 to-transparent">
+                </div>
+                <div class="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-4xl">
+                    <div class="flex items-center gap-3 mb-6 animate-slide-up" style="animation-delay: 0.1s;">
+                        <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20 backdrop-blur-md">
+                            <i class="fa-solid fa-sparkles text-yellow-400 mr-2"></i> TEST SEASON
+                        </span>
+                        <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-cheeseman-primary/20 text-cheeseman-primary border border-cheeseman-primary/30 backdrop-blur-md">
+                            BETA v1
+                        </span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight animate-slide-up"
+                        style="animation-delay: 0.2s; -webkit-text-stroke: 0; color: white;">
+                        Retrofuturism <br>
+                        <span class="inline-block text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-pink-500 to-orange-500 bg-[length:200%_auto] animate-shimmer">Reimagined</span>
+                    </h1>
+                    <p class="text-slate-300 text-lg md:text-xl mb-10 max-w-2xl leading-relaxed animate-slide-up" style="animation-delay: 0.3s;">
+                        Dive into a curated universe of physics-based chaos, neon-soaked puzzles, and competitive arcade
+                        classics. The CheeseMan library is expanding.
+                    </p>
+                    <div class="flex flex-wrap gap-4 animate-slide-up" style="animation-delay: 0.4s;">
+                        <button onclick="switchTab('games')" class="px-8 py-4 bg-white text-black font-extrabold rounded-2xl hover:bg-cheeseman-primary hover:text-white transition-all transform hover:-translate-y-1 hover:shadow-lg hover:shadow-cheeseman-primary/40 flex items-center gap-3">
+                            <i class="fa-solid fa-play"></i> Start Playing
+                        </button>
+                        <button onclick="launchGame('cubecombat')" class="px-8 py-4 glass text-white font-bold rounded-2xl hover:bg-white/10 transition-all border border-white/10 backdrop-blur-md flex items-center gap-3 group/btn">
+                            <span>Featured Game</span>
+                            <i class="fa-solid fa-arrow-right group-hover/btn:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="glass p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-cheeseman-primary/30 transition-all hover:bg-cheeseman-primary/5">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-cheeseman-primary/10 rounded-full blur-2xl group-hover:bg-cheeseman-primary/20 transition-colors">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <p class="text-4xl font-black text-white mb-1">12</p>
+                        <p class="text-cheeseman-muted text-xs font-bold uppercase tracking-widest">Achievements</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-emerald-500/30 transition-all hover:bg-emerald-500/5">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <p class="text-4xl font-black text-white mb-1">84h</p>
+                        <p class="text-cheeseman-muted text-xs font-bold uppercase tracking-widest">Time Played</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-cheeseman-accent/30 transition-all hover:bg-cheeseman-accent/5">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-cheeseman-accent/10 rounded-full blur-2xl group-hover:bg-cheeseman-accent/20 transition-colors">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-pink-500/20 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <p class="text-4xl font-black text-white mb-1">15</p>
+                        <p class="text-cheeseman-muted text-xs font-bold uppercase tracking-widest">Day Streak</p>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white/5 relative overflow-hidden group hover:border-amber-500/30 transition-all hover:bg-amber-500/5">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-white text-xl mb-4 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <p class="text-4xl font-black text-white mb-1">204</p>
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        </div>
+                        <p class="text-cheeseman-muted text-xs font-bold uppercase tracking-widest">Global Online</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trending Now -->
+            <div class="pt-8 border-t border-white/5">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">Trending Now</h2>
+                        <p class="text-cheeseman-muted">Most played by the community this week.</p>
+                    </div>
+                    <button onclick="switchTab('games')" class="px-4 py-2 rounded-lg hover:bg-white/5 text-cheeseman-primary font-bold text-sm transition-colors flex items-center gap-2">
+                        View Library <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <!-- Trending: Cube Combat (BROKEN) -->
+                    <div onclick="launchGame('cubecombat')" class="group cursor-pointer relative rounded-3xl overflow-hidden aspect-[16/9] border border-white/5 hover:border-cheeseman-primary/50 transition-all hover:shadow-2xl hover:shadow-cheeseman-primary/10">
+                        <img src="assets/cube-combat.png" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-60 transition-opacity">
+                        </div>
+                        <div class="absolute inset-0 p-6 flex flex-col">
+                            <div class="flex items-center gap-2 mb-2">
+                                <h3 class="font-black text-2xl text-white group-hover:text-cheeseman-primary transition-colors">Cube Combat</h3>
+                                <span class="inline-block px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded">HOT</span>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center bg-red-600/90 backdrop-blur-sm rounded-2xl border-2 border-red-400">
+                                <div class="text-center">
+                                    <i class="fa-solid fa-triangle-exclamation text-6xl text-white mb-4"></i>
+                                    <h4 class="text-5xl font-black text-white tracking-wider">BROKEN</h4>
+                                    <p class="text-white/80 text-sm mt-2">Game temporarily unavailable</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-50 group-hover:scale-100 border border-white/20 pointer-events-none">
+                            <i class="fa-solid fa-play text-white text-2xl pl-1"></i>
+                        </div>
+                    </div>
+
+                    <!-- Trending: Sketchy Casino -->
+                    <div onclick="launchGame('sketchycasino')" class="group cursor-pointer relative rounded-3xl overflow-hidden aspect-[16/9] border border-white/5 hover:border-red-500/50 transition-all hover:shadow-2xl hover:shadow-red-500/10">
+                        <div class="w-full h-full bg-gradient-to-br from-slate-900 via-red-950 to-black flex items-center justify-center transition-transform duration-700 group-hover:scale-110">
+                            <i class="fa-solid fa-dice text-8xl text-red-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-60 transition-opacity">
+                        </div>
+                        <div class="absolute inset-0 p-6 flex flex-col justify-end">
+                            <span class="inline-block px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded mb-2 w-fit">NEW</span>
+                            <h3 class="font-black text-2xl text-white mb-1 group-hover:text-red-400 transition-colors">Sketchy Casino</h3>
+                            <p class="text-gray-300 text-sm line-clamp-2 mb-4 opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0 duration-300">
+                                Try your luck at the tables in this shady casino experience.
+                            </p>
+                            <div class="flex items-center gap-2 text-xs font-bold text-cheeseman-muted">
+                                <span class="bg-white/10 px-2 py-1 rounded"><i class="fa-solid fa-dice mr-1"></i> Casino</span>
+                                <span class="bg-white/10 px-2 py-1 rounded"><i class="fa-solid fa-coins mr-1"></i> Gambling</span>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-50 group-hover:scale-100 border border-white/20">
+                            <i class="fa-solid fa-play text-white text-2xl pl-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             View: Game Library
+             ============================================================ -->
+        <section id="view-games" class="hidden p-6 lg:p-12 max-w-[1600px] mx-auto min-h-full animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-4xl lg:text-5xl font-black text-white mb-2">Game Library</h1>
+                    <p class="text-cheeseman-muted text-lg">Browse your collection of installed games.</p>
+                </div>
+                <div class="relative group">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-cheeseman-muted group-focus-within:text-cheeseman-primary transition-colors"></i>
+                    <input type="text" placeholder="Search library..." class="pl-12 pr-4 py-4 bg-cheeseman-highlight/30 border border-white/5 rounded-2xl text-white w-full md:w-80 focus:outline-none focus:border-cheeseman-primary focus:bg-cheeseman-highlight/50 transition-all shadow-lg">
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
+                <button class="px-6 py-2.5 bg-white text-black font-bold rounded-xl text-sm whitespace-nowrap hover:scale-105 transition-transform">All Games</button>
+                <button class="px-6 py-2.5 bg-white/5 text-cheeseman-muted hover:text-white hover:bg-white/10 font-bold rounded-xl text-sm whitespace-nowrap border border-white/5 transition-all">Arcade</button>
+                <button class="px-6 py-2.5 bg-white/5 text-cheeseman-muted hover:text-white hover:bg-white/10 font-bold rounded-xl text-sm whitespace-nowrap border border-white/5 transition-all">Puzzle</button>
+                <button class="px-6 py-2.5 bg-white/5 text-cheeseman-muted hover:text-white hover:bg-white/10 font-bold rounded-xl text-sm whitespace-nowrap border border-white/5 transition-all">Card</button>
+            </div>
+
+            <!-- Game Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+                <!-- Game: Cube Combat (BROKEN) -->
+                <button onclick="launchGame('cubecombat')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-cheeseman-primary/20 hover:to-cheeseman-accent/20 border border-white/5 hover:border-cheeseman-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-cheeseman-primary/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] overflow-hidden relative mb-4">
+                        <img src="assets/cube-combat.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                        <div class="absolute top-3 left-3 right-3 flex items-center gap-2 z-10">
+                            <h3 class="text-lg font-bold text-white">Cube Combat</h3>
+                            <span class="px-2 py-0.5 bg-red-500 text-white text-[9px] font-bold rounded">HOT</span>
+                        </div>
+                        <div class="absolute top-12 left-3 right-3 bottom-3 flex items-center justify-center bg-red-600/90 backdrop-blur-sm rounded-xl border-2 border-red-400">
+                            <div class="text-center">
+                                <i class="fa-solid fa-triangle-exclamation text-3xl text-white mb-2"></i>
+                                <h4 class="text-2xl font-black text-white tracking-wider">BROKEN</h4>
+                                <p class="text-white/80 text-xs mt-1">Temporarily unavailable</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <p class="text-sm text-cheeseman-muted">Physics-based arena brawler.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Sketchy Casino -->
+                <button onclick="launchGame('sketchycasino')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-red-500/20 hover:to-amber-500/20 border border-white/5 hover:border-red-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] overflow-hidden relative mb-4">
+                        <img src="assets/sketchy-casino.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                        <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-white border border-white/10">
+                            <i class="fa-solid fa-dice mr-1"></i> CASINO
+                        </div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-red-400 transition-colors">Sketchy Casino</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Try your luck at the tables.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Cyber Snake -->
+                <button onclick="launchGame('snake')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-emerald-500/20 hover:to-green-500/20 border border-white/5 hover:border-emerald-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-worm text-6xl text-emerald-500 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">Cyber Snake</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Classic snake with a neon twist.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Neon Tic-Tac-Toe -->
+                <button onclick="launchGame('tictactoe')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-indigo-500/20 hover:to-purple-500/20 border border-white/5 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <div class="grid grid-cols-2 gap-1 text-4xl text-indigo-400 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i class="fa-solid fa-x"></i><i class="fa-regular fa-circle text-pink-500"></i>
+                            <i class="fa-regular fa-circle text-pink-500"></i><i class="fa-solid fa-x"></i>
+                        </div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Classic strategy game.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Reflex Tester -->
+                <button onclick="launchGame('reflex')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-orange-500/20 hover:to-yellow-500/20 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-bolt text-6xl text-orange-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-orange-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-orange-400 transition-colors">Reflex Tester</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Test your reaction speed.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Neon Breaker -->
+                <button onclick="launchGame('breaker')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-blue-500/20 hover:to-cyan-500/20 border border-white/5 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-shield-halved text-6xl text-blue-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">Neon Breaker</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Break all the bricks.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Cyber Match -->
+                <button onclick="launchGame('match')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-purple-500/20 hover:to-pink-500/20 border border-white/5 hover:border-purple-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-layer-group text-6xl text-purple-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">Cyber Match</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Find matching pairs.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Neon High-Low -->
+                <button onclick="launchGame('highlow')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-yellow-500/20 hover:to-amber-500/20 border border-white/5 hover:border-yellow-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-arrow-down-up-across-line text-6xl text-yellow-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-yellow-400 transition-colors">Neon High-Low</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-yellow-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Higher or lower card game.</p>
+                    </div>
+                </button>
+
+                <!-- Game: Cyber Solitaire -->
+                <button onclick="launchGame('solitaire')" class="group relative flex flex-col items-start p-1 rounded-3xl bg-gradient-to-br from-white/5 to-white/0 hover:from-green-500/20 hover:to-emerald-500/20 border border-white/5 hover:border-green-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/10 hover:-translate-y-1">
+                    <div class="w-full aspect-video rounded-[20px] bg-slate-800 flex items-center justify-center relative mb-4 overflow-hidden">
+                        <i class="fa-solid fa-diamond text-6xl text-green-400 group-hover:scale-125 transition-transform duration-300"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent"></div>
+                    </div>
+                    <div class="w-full px-4 pb-4">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-xl font-bold text-white group-hover:text-green-400 transition-colors">Cyber Solitaire</h3>
+                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-all">
+                                <i class="fa-solid fa-play text-xs"></i>
+                            </div>
+                        </div>
+                        <p class="text-sm text-cheeseman-muted group-hover:text-slate-300 line-clamp-1">Classic solitaire card game.</p>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             View: Community
+             ============================================================ -->
+        <section id="view-community" class="hidden p-6 lg:p-12 max-w-[1600px] mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl lg:text-5xl font-black text-white mb-8">Community Hub</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Feed Column -->
+                <div class="lg:col-span-2 space-y-6">
+
+                    <!-- User Status -->
+                    <div id="user-status-section" class="flex flex-col gap-4 mb-6" style="display:none;">
+                        <div class="glass p-4 rounded-2xl border border-cheeseman-primary/20 bg-cheeseman-primary/5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-cheeseman-primary flex items-center justify-center text-white font-bold text-xl">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span id="status-text" class="text-white font-bold">PlayerOne</span>
+                                    <span class="text-xs text-cheeseman-muted">Online</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Community Feed -->
+                    <div id="community-feed">
+                        <div class="text-center py-12">
+                            <i class="fa-solid fa-circle-notch fa-spin text-cheeseman-primary text-3xl mb-4"></i>
+                            <p class="text-cheeseman-muted">Loading community updates...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="space-y-6">
+
+                    <!-- Live Events -->
+                    <div class="glass p-6 rounded-3xl border border-white/5">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-star text-cheeseman-primary"></i> Live Events
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-2xl bg-gradient-to-r from-cheeseman-primary/20 to-cheeseman-accent/10 border border-cheeseman-primary/20 hover:border-cheeseman-primary/50 transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="px-2 py-1 rounded-md bg-white/10 text-[10px] font-bold text-white uppercase backdrop-blur-sm">Ending Soon</span>
+                                    <i class="fa-solid fa-chevron-right text-xs text-white/50 group-hover:translate-x-1 transition-transform"></i>
+                                </div>
+                                <h4 class="font-bold text-white text-lg leading-tight mb-1">Weekend Tournament</h4>
+                                <p class="text-xs text-cheeseman-muted mb-3">Double XP in all multiplayer modes.</p>
+                                <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-cheeseman-primary w-3/4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Players Leaderboard -->
+                    <div class="glass p-6 rounded-3xl border border-white/5">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-ranking-star text-yellow-400"></i> Top Players
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                                <span class="font-black text-yellow-400 w-4">1</span>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Pro" class="w-8 h-8 rounded-lg bg-yellow-400/20">
+                                <span class="font-bold text-white text-sm flex-1">ProGamer99</span>
+                                <span class="text-xs font-mono text-cheeseman-muted">999k</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                                <span class="font-black text-slate-300 w-4">2</span>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Elite" class="w-8 h-8 rounded-lg bg-slate-300/20">
+                                <span class="font-bold text-white text-sm flex-1">EliteSniper</span>
+                                <span class="text-xs font-mono text-cheeseman-muted">842k</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors">
+                                <span class="font-black text-orange-400 w-4">3</span>
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Noob" class="w-8 h-8 rounded-lg bg-orange-400/20">
+                                <span class="font-bold text-white text-sm flex-1">CasualBob</span>
+                                <span class="text-xs font-mono text-cheeseman-muted">721k</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             View: Settings
+             ============================================================ -->
+        <section id="view-settings" class="hidden p-6 lg:p-12 max-w-4xl mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl lg:text-5xl font-black text-white mb-8">Settings</h1>
+
+            <div class="space-y-8">
+
+                <!-- Account Section -->
+                <div class="glass rounded-3xl p-8 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-10 h-10 rounded-xl bg-cheeseman-primary/20 text-cheeseman-primary flex items-center justify-center mr-4 text-lg border border-cheeseman-primary/20"><i class="fa-solid fa-user-gear"></i></span>
+                        Account
+                    </h2>
+
+                    <!-- Auth (sign in) section -->
+                    <section id="auth-section" style="display:none;">
+                        <h3 class="text-sm font-bold text-cheeseman-muted uppercase tracking-wide mb-2">Sign In with Magic Link</h3>
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <input id="magic-email" type="email" placeholder="you@example.com" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cheeseman-primary transition-colors">
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <button id="magic-btn" class="flex-1 px-6 py-3 bg-cheeseman-primary text-white font-bold rounded-xl hover:bg-cheeseman-accent transition-colors shadow-lg shadow-cheeseman-primary/20">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Send Magic Link
+                            </button>
+                        </div>
+
+                        <div class="relative flex py-2 items-center">
+                            <div class="flex-grow border-t border-white/10"></div>
+                            <span class="flex-shrink mx-4 text-cheeseman-muted text-xs font-bold uppercase">OR</span>
+                            <div class="flex-grow border-t border-white/10"></div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h3 class="text-sm font-bold text-cheeseman-muted uppercase tracking-wide mb-2">Have a Key?</h3>
+                            <div class="flex gap-2">
+                                <label class="flex-1 cursor-pointer bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-cheeseman-muted hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-key mr-2"></i> Select log.key file
+                                    <input type="file" id="key-upload" accept=".key,.json" class="hidden">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="auth-message" class="text-cheeseman-muted text-sm mt-4 font-bold"></div>
+                    </section>
+
+                    <!-- Account info (logged in) -->
+                    <div id="account-info-display" class="hidden">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 rounded-2xl bg-cheeseman-primary flex items-center justify-center text-white text-2xl font-bold">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 id="settings-username" class="text-xl font-bold text-white">Guest</h3>
+                                <p class="text-cheeseman-muted text-sm">Logged In</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="text-sm font-bold text-cheeseman-muted uppercase tracking-wide mb-2 block">Display Name</label>
+                            <div class="flex gap-2">
+                                <input id="profile-username-input" type="text" placeholder="Enter username" class="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cheeseman-primary transition-colors">
+                                <button id="update-profile-btn" class="px-4 py-2 bg-cheeseman-primary text-white font-bold rounded-xl hover:bg-cheeseman-accent transition-colors">Update</button>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="settings-signout-btn" class="px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 font-bold hover:bg-red-500/20 transition-colors">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display & Appearance Section -->
+                <div class="glass rounded-3xl p-8 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mr-4 text-lg border border-blue-500/20"><i class="fa-solid fa-display"></i></span>
+                        Display & Appearance
+                    </h2>
+
+                    <div class="space-y-8">
+
+                        <!-- Color Theme Picker -->
+                        <div>
+                            <span class="block text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-palette text-cheeseman-muted text-xs"></i> Color Theme</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <button onclick="setTheme('default')" class="p-1 rounded-2xl border-2 border-transparent hover:border-cheeseman-primary transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="default">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#09090b] relative overflow-hidden border border-white/5">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-pink-500 opacity-20"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-indigo-500"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Default</span>
+                                </button>
+
+                                <button onclick="setTheme('light')" class="p-1 rounded-2xl border-2 border-transparent hover:border-indigo-500 transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="light">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#f4f4f5] relative overflow-hidden border border-black/10">
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-indigo-600"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Light</span>
+                                </button>
+
+                                <button onclick="setTheme('midnight')" class="p-1 rounded-2xl border-2 border-transparent hover:border-sky-500 transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="midnight">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#020617] relative overflow-hidden border border-white/5">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-sky-900 to-indigo-900 opacity-40"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-sky-400"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Midnight</span>
+                                </button>
+
+                                <button onclick="setTheme('forest')" class="p-1 rounded-2xl border-2 border-transparent hover:border-emerald-500 transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="forest">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#052e16] relative overflow-hidden border border-white/5">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-green-900 to-emerald-900 opacity-40"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-emerald-500"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Forest</span>
+                                </button>
+
+                                <button onclick="setTheme('sunset')" class="p-1 rounded-2xl border-2 border-transparent hover:border-rose-500 transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="sunset">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#2a1b3d] relative overflow-hidden border border-white/5">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-rose-900 to-purple-900 opacity-40"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-rose-500"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Sunset</span>
+                                </button>
+
+                                <button onclick="setTheme('neon')" class="p-1 rounded-2xl border-2 border-transparent hover:border-cyan-400 transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="neon">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-black relative overflow-hidden border border-white/20">
+                                        <div class="absolute inset-0 border border-cyan-400/20"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-cyan-400 box-shadow-[0_0_10px_cyan]"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Neon</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Meme Themes -->
+                        <div>
+                            <span class="block text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-face-grin-tears text-cheeseman-muted text-xs"></i> Meme Themes</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <button onclick="setTheme('boykisser67')" class="p-1 rounded-2xl border-2 border-transparent hover:border-[#f06292] transition-all text-left group bg-cheeseman-highlight/10 relative overflow-hidden active-theme-btn" data-theme="boykisser67">
+                                    <div class="w-full aspect-[4/3] rounded-xl mb-2 bg-[#fce4ec] relative overflow-hidden border border-black/5">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-[#f06292] to-[#ba68c8] opacity-20"></div>
+                                        <div class="absolute top-2 left-2 w-4 h-4 rounded-full bg-[#f06292]"></div>
+                                    </div>
+                                    <span class="block text-center text-xs text-cheeseman-muted font-bold group-hover:text-white mb-2">Boykisser 67</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Reduced Motion Toggle -->
+                        <div class="flex items-center justify-between group p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                            <div>
+                                <span class="block text-white font-bold flex items-center gap-2"><i class="fa-solid fa-person-walking-dashed-line-arrow-right text-cheeseman-muted"></i> Reduced Motion</span>
+                                <span class="text-cheeseman-muted text-xs">Disable parallax and heavy animations</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="setting-reduced-motion" class="sr-only peer" onchange="toggleSetting('reducedMotion')">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cheeseman-primary"></div>
+                            </label>
+                        </div>
+
+                        <!-- Show FPS Toggle -->
+                        <div class="flex items-center justify-between group p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                            <div>
+                                <span class="block text-white font-bold flex items-center gap-2"><i class="fa-solid fa-gauge-high text-cheeseman-muted"></i> Show FPS</span>
+                                <span class="text-cheeseman-muted text-xs">Display performance metrics</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="setting-show-fps" class="sr-only peer" checked onchange="toggleSetting('showFps')">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cheeseman-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Section -->
+                <div class="glass rounded-3xl p-8 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mr-4 text-lg border border-pink-500/20"><i class="fa-solid fa-volume-high"></i></span>
+                        Audio
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between mb-4">
+                                <span class="text-white font-bold">Master Volume</span>
+                                <span class="text-cheeseman-primary font-mono font-bold" id="volume-val">80%</span>
+                            </div>
+                            <input type="range" value="80" oninput="document.getElementById('volume-val').innerText = this.value + '%'" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cheeseman-primary hover:accent-cheeseman-accent transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Developer Options Section -->
+                <div class="glass rounded-3xl p-8 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mr-4 text-lg border border-emerald-500/20"><i class="fa-solid fa-code-branch"></i></span>
+                        Developer Options
+                    </h2>
+                    <div class="flex items-center justify-between group p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors">
+                        <div>
+                            <span class="block text-white font-bold mb-1">Test Branch</span>
+                            <p class="text-xs text-cheeseman-muted">Switch to the experimental build to test new features.</p>
+                        </div>
+                        <a href="games/testbranch.html" class="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 font-bold rounded-lg transition-colors border border-emerald-500/30">
+                            Switch Branch <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             View: Credits
+             ============================================================ -->
+        <section id="view-credits" class="hidden p-6 lg:p-12 max-w-4xl mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl lg:text-5xl font-black text-white mb-8 text-center">Credits</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass rounded-3xl p-8 border border-white/5 flex flex-col items-center text-center">
+                    <div class="w-20 h-20 rounded-full bg-cheeseman-primary/20 flex items-center justify-center text-cheeseman-primary text-3xl mb-6 border border-cheeseman-primary/30">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Development</h2>
+                    <p class="text-cheeseman-muted mb-6">Built with passion and caffeine.</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li><span class="text-white font-bold">Fkm_X3</span> - Dev</li>
+                        <li><span class="text-white font-bold">BobbyThe124</span> - Artist and Dev (somtimes)</li>
+                    </ul>
+                </div>
+
+                <div class="glass rounded-3xl p-8 border border-white/5 flex flex-col items-center text-center">
+                    <div class="w-20 h-20 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-3xl mb-6 border border-pink-500/30">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Technology</h2>
+                    <p class="text-cheeseman-muted mb-6">Powered by open source magic.</p>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li>Tailwind CSS</li>
+                        <li>Font Awesome 6</li>
+                        <li>Google Fonts (Outfit)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <p class="text-cheeseman-muted text-xs">© 2025 CheeseMan Games. All rights reserved.</p>
+                <p class="text-cheeseman-muted text-[10px] mt-2">v2.5.0-beta</p>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             View: Socials
+             ============================================================ -->
+        <section id="view-socials" class="hidden p-6 lg:p-12 max-w-[1600px] mx-auto min-h-full animate-fade-in">
+            <div class="text-center max-w-2xl mx-auto mb-16 mt-8">
+                <span class="inline-block px-3 py-1 rounded-full bg-cheeseman-primary/10 text-cheeseman-primary text-xs font-bold uppercase tracking-widest mb-4 border border-cheeseman-primary/20">Connect With Us</span>
+                <h1 class="text-4xl lg:text-6xl font-black text-white mb-6">Join the <span class="text-transparent bg-clip-text bg-gradient-to-r from-cheeseman-primary to-cheeseman-accent">Revolution</span></h1>
+                <p class="text-xl text-cheeseman-muted">Be part of our growing community. Get exclusive updates, find teammates, and share your achievements.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- Discord -->
+                <a href="#" class="group glass p-8 rounded-[32px] border border-white/5 hover:bg-[#5865F2] transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-6 group-hover:bg-white text-white group-hover:text-[#5865F2] transition-colors text-4xl shadow-xl">
+                        <i class="fa-brands fa-discord"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-2">Discord</h3>
+                    <p class="text-sm text-slate-300 group-hover:text-white/80 mb-6 font-medium">Join 5+ members in our official server.</p>
+                    <span class="inline-flex items-center justify-center w-full py-3 bg-white/10 rounded-xl text-white font-bold text-sm group-hover:bg-white group-hover:text-[#5865F2] transition-colors">
+                        Join Server <i class="fa-solid fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0"></i>
+                    </span>
+                </a>
+
+                <!-- Twitter -->
+                <a href="#" class="group glass p-8 rounded-[32px] border border-white/5 hover:bg-black transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-6 group-hover:bg-white text-white group-hover:text-black transition-colors text-4xl shadow-xl">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-2">Twitter</h3>
+                    <p class="text-sm text-slate-300 group-hover:text-white/80 mb-6 font-medium">Follow for latest updates and sneak peeks.</p>
+                    <span class="inline-flex items-center justify-center w-full py-3 bg-white/10 rounded-xl text-white font-bold text-sm group-hover:bg-white group-hover:text-black transition-colors">
+                        Follow Us <i class="fa-solid fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0"></i>
+                    </span>
+                </a>
+
+                <!-- YouTube -->
+                <a href="#" class="group glass p-8 rounded-[32px] border border-white/5 hover:bg-[#FF0000] transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-6 group-hover:bg-white text-white group-hover:text-[#FF0000] transition-colors text-4xl shadow-xl">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-2">YouTube</h3>
+                    <p class="text-sm text-slate-300 group-hover:text-white/80 mb-6 font-medium">Devlogs, trailers, and community highlights.</p>
+                    <span class="inline-flex items-center justify-center w-full py-3 bg-white/10 rounded-xl text-white font-bold text-sm group-hover:bg-white group-hover:text-[#FF0000] transition-colors">
+                        Subscribe <i class="fa-solid fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0"></i>
+                    </span>
+                </a>
+
+                <!-- GitHub -->
+                <a href="https://github.com/Cheeseman-git/Cheeseman-git.github.io" target="_blank" rel="noopener noreferrer" class="group glass p-8 rounded-[32px] border border-white/5 hover:bg-[#333] transition-all duration-300 hover:-translate-y-2 text-center">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-6 group-hover:bg-white text-white group-hover:text-[#333] transition-colors text-4xl shadow-xl">
+                        <i class="fa-brands fa-github"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-2">GitHub</h3>
+                    <p class="text-sm text-slate-300 group-hover:text-white/80 mb-6 font-medium">Contribute to the open source codebase.</p>
+                    <span class="inline-flex items-center justify-center w-full py-3 bg-white/10 rounded-xl text-white font-bold text-sm group-hover:bg-white group-hover:text-[#333] transition-colors">
+                        Star Repo <i class="fa-solid fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-5px] group-hover:translate-x-0"></i>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Special Thanks -->
+            <div class="glass rounded-2xl p-6 border border-cheeseman-highlight/20 mt-12">
+                <h2 class="text-xl font-semibold mb-2">Special Thanks</h2>
+                <p class="text-cheeseman-content text-sm">
+                    Thanks to @RedFox-AI51 for providing the framework for testbranch.
+                    Thanks to everyone who helped test CheeseMan Games and provided feedback.
+                </p>
+            </div>
+        </section>
     </main>
-  </body>
+
+    <!-- ============================================================
+         Mobile Bottom Navigation
+         ============================================================ -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 h-20 glass border-t border-cheeseman-highlight/30 z-50 flex justify-around items-center px-2 pb-2">
+        <button onclick="switchTab('home')" class="mobile-nav-btn flex flex-col items-center justify-center w-14 h-16 rounded-xl text-cheeseman-muted active:text-indigo-400 transition-colors active" data-target="home">
+            <i class="fa-solid fa-house text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Home</span>
+        </button>
+        <button onclick="switchTab('games')" class="mobile-nav-btn flex flex-col items-center justify-center w-14 h-16 rounded-xl text-cheeseman-muted active:text-indigo-400 transition-colors" data-target="games">
+            <i class="fa-solid fa-ghost text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Games</span>
+        </button>
+        <button onclick="window.location.href='store.html'" class="flex flex-col items-center justify-center w-14 h-16 rounded-xl text-cheeseman-muted active:text-indigo-400 transition-colors">
+            <i class="fa-solid fa-bag-shopping text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Store</span>
+        </button>
+        <button onclick="switchTab('socials')" class="mobile-nav-btn flex flex-col items-center justify-center w-14 h-16 rounded-xl text-cheeseman-muted active:text-indigo-400 transition-colors" data-target="socials">
+            <i class="fa-solid fa-share-nodes text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Socials</span>
+        </button>
+        <button onclick="switchTab('community')" class="mobile-nav-btn flex flex-col items-center justify-center w-14 h-16 rounded-xl text-cheeseman-muted active:text-indigo-400 transition-colors" data-target="community">
+            <i class="fa-solid fa-users text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Comm</span>
+        </button>
+    </div>
+
+    <!-- ============================================================
+         Game Overlay
+         ============================================================ -->
+    <div id="game-overlay" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col animate-fade-in backdrop-blur-xl">
+
+        <!-- Overlay Header -->
+        <div class="flex justify-between items-center p-4 border-b border-cheeseman-highlight/30">
+            <h2 id="active-game-title" class="text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> GAME TITLE
+            </h2>
+            <button onclick="closeGame()" class="w-10 h-10 rounded-full bg-cheeseman-highlight/20 hover:bg-red-500/20 hover:text-red-500 flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Overlay Body -->
+        <div class="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
+
+            <div class="relative bg-slate-900 rounded-xl shadow-2xl border border-cheeseman-highlight/30 overflow-hidden max-w-full max-h-full">
+
+                <!-- Canvas (Snake, Reflex, Breaker) -->
+                <canvas id="game-canvas" width="400" height="400" class="hidden max-w-full max-h-[70vh] cursor-crosshair object-contain"></canvas>
+
+                <!-- Iframe (Cube Combat, Sketchy Casino) -->
+                <iframe id="game-iframe" class="hidden w-full h-[80vh] min-w-[80vw] bg-transparent border-0" allowfullscreen></iframe>
+
+                <!-- Tic-Tac-Toe Board -->
+                <div id="ttt-board" class="hidden grid-cols-3 gap-3 bg-slate-800 p-4 w-[min(90vw,400px)] h-[min(90vw,400px)]"></div>
+
+                <!-- Memory Match Board -->
+                <div id="memory-board" class="hidden grid-cols-4 gap-2 bg-slate-800 p-4 w-[min(90vw,400px)] h-[min(90vw,400px)]"></div>
+
+                <!-- High-Low Board -->
+                <div id="highlow-board" class="hidden flex-col items-center justify-center gap-8 bg-slate-800 p-8 w-[min(90vw,400px)] h-[min(90vw,400px)]">
+                    <div id="hl-card-display" class="w-32 h-48 bg-white rounded-xl shadow-2xl flex flex-col items-center justify-center text-4xl font-bold transition-all transform hover:scale-105"></div>
+                    <div class="flex gap-4 w-full">
+                        <button id="hl-lower" class="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-lg font-bold text-white transition-colors">LOWER <i class="fa-solid fa-arrow-down ml-1"></i></button>
+                        <button id="hl-higher" class="flex-1 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-bold text-white transition-colors">HIGHER <i class="fa-solid fa-arrow-up ml-1"></i></button>
+                    </div>
+                    <div class="text-xl font-bold text-white">Score: <span id="hl-score" class="text-white">0</span></div>
+                </div>
+
+                <!-- Solitaire Board -->
+                <div id="solitaire-board" class="hidden flex-col bg-slate-800 p-2 w-[min(95vw,600px)] h-[min(140vw,600px)] relative">
+                    <div class="flex justify-between h-24 mb-4">
+                        <div class="flex gap-2" id="sol-foundations">
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="0"><i class="fa-solid fa-heart"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="1"><i class="fa-solid fa-diamond"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="2"><i class="fa-solid fa-clover"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="3"><i class="fa-solid fa-spa"></i></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div id="sol-stock" class="w-16 h-24 bg-blue-900 border-2 border-white rounded-md flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-800 transition-colors">
+                                <i class="fa-solid fa-rotate text-white text-2xl"></i>
+                            </div>
+                            <div id="sol-talon" class="w-16 h-24 border border-slate-600 rounded-md relative"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between flex-1 relative" id="sol-tableau"></div>
+                </div>
+
+                <!-- Game UI Layer (status + start button) -->
+                <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 backdrop-blur-sm p-6 text-center">
+                    <h3 id="game-status-title" class="text-4xl font-black text-white mb-2 italic tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cheeseman-primary to-cheeseman-accent">READY</h3>
+                    <p id="game-status-desc" class="text-slate-300 mb-8 max-w-xs">Press start to begin the session.</p>
+                    <button id="start-btn" class="group relative px-8 py-4 bg-cheeseman-primary font-bold text-white rounded-xl overflow-hidden transition-all hover:scale-105 active:scale-95">
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>
+                        <span class="relative flex items-center gap-2">START GAME <i class="fa-solid fa-play text-xs"></i></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay Footer (controls hint) -->
+        <div class="p-6 text-center text-slate-500 text-sm border-t border-cheeseman-highlight/30 bg-black">
+            <p id="game-controls-hint" class="flex justify-center items-center gap-4">
+                <span class="flex gap-1"><i class="fa-solid fa-arrow-up border border-slate-700 p-1 rounded"></i><i class="fa-solid fa-arrow-down border border-slate-700 p-1 rounded"></i></span> to move
+            </p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         Scripts
+         ============================================================ -->
+    <script src="js/index.js"></script>
+    <script src="js/github.js"></script>
+</body>
 </html>

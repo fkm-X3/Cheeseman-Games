@@ -1,3 +1,23 @@
+/* ============================================================
+ * CheeseMan Games - Main Application Script
+ * ============================================================
+ * Handles theme switching, tab navigation, game overlay
+ * management, and all built-in game engines (Snake,
+ * Tic-Tac-Toe, Reflex Tester, Neon Breaker, Cyber Match,
+ * Neon High-Low, Cyber Solitaire).
+ * ============================================================ */
+
+/* ============================================================
+ * Theme & Settings
+ * ============================================================ */
+
+/**
+ * Applies a theme by setting the `data-theme` attribute on the
+ * root <html> element and persists the choice to localStorage.
+ *
+ * @param {string} themeName - Theme identifier ("default", "light",
+ *                              "midnight", "forest", "sunset", etc.).
+ */
 function setTheme(themeName) {
     if (themeName === 'default') {
         document.documentElement.removeAttribute('data-theme');
@@ -6,7 +26,6 @@ function setTheme(themeName) {
     }
     localStorage.setItem('cheeseman-theme', themeName);
 
-    
     document.querySelectorAll('.active-theme-btn').forEach(btn => {
         if (btn.dataset.theme === themeName) {
             btn.classList.add('ring-2', 'ring-cheeseman-primary', 'ring-offset-2', 'ring-offset-transparent');
@@ -16,7 +35,12 @@ function setTheme(themeName) {
     });
 }
 
-
+/**
+ * Toggles a binary setting (e.g. reduced motion) and applies its
+ * side effects immediately.
+ *
+ * @param {string} settingId - CamelCase setting key.
+ */
 function toggleSetting(settingId) {
     const checkbox = document.getElementById(`setting-${settingId.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
     if (!checkbox) return;
@@ -24,7 +48,6 @@ function toggleSetting(settingId) {
     const isEnabled = checkbox.checked;
     localStorage.setItem(`cheeseman-setting-${settingId}`, isEnabled);
 
-    
     if (settingId === 'reducedMotion') {
         if (isEnabled) {
             document.documentElement.style.setProperty('--transition-speed', '0s');
@@ -36,50 +59,50 @@ function toggleSetting(settingId) {
     }
 }
 
+/* ---- Boot: restore saved theme & settings on page load ---- */
 
 document.addEventListener('DOMContentLoaded', () => {
-    
     const savedTheme = localStorage.getItem('cheeseman-theme') || 'default';
     setTheme(savedTheme);
 
-    
     switchTab('home');
 
-    
     const settings = ['reducedMotion', 'showFps'];
     settings.forEach(setting => {
         const savedValue = localStorage.getItem(`cheeseman-setting-${setting}`);
         const checkbox = document.getElementById(`setting-${setting.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
         if (checkbox && savedValue !== null) {
             checkbox.checked = savedValue === 'true';
-            
             if (setting === 'reducedMotion' && checkbox.checked) {
                 document.body.classList.add('reduce-motion');
             }
         }
     });
-
-    
 });
 
+/* ============================================================
+ * Tab Navigation
+ * ============================================================ */
 
+/**
+ * Switches the visible view section and updates both desktop
+ * sidebar and mobile bottom-nav active states.
+ *
+ * @param {string} tabId - View identifier ("home", "games",
+ *                          "community", "settings", "credits", "socials").
+ */
 function switchTab(tabId) {
-    
     ['home', 'games', 'community', 'settings', 'credits', 'socials'].forEach(id => {
         const el = document.getElementById(`view-${id}`);
         if (el) el.classList.add('hidden');
     });
 
-    
     const view = document.getElementById(`view-${tabId}`);
     if (view) view.classList.remove('hidden');
 
-    
     const mainScroll = document.getElementById('main-scroll');
     if (mainScroll) mainScroll.scrollTop = 0;
 
-    
-    
     document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.remove('bg-cheeseman-highlight/20', 'text-cheeseman-content');
         el.classList.add('text-cheeseman-muted');
@@ -90,7 +113,6 @@ function switchTab(tabId) {
         deskBtn.classList.remove('text-cheeseman-muted');
     }
 
-    
     document.querySelectorAll('.mobile-nav-btn').forEach(el => {
         el.classList.remove('text-cheeseman-primary');
         el.classList.add('text-cheeseman-muted');
@@ -101,9 +123,15 @@ function switchTab(tabId) {
     });
 }
 
+/* ============================================================
+ * Game Overlay State
+ * ============================================================ */
 
 let gameInterval = null;
 let activeGame = null;
+
+/* ---- DOM references for the game overlay ---- */
+
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 const tttBoard = document.getElementById('ttt-board');
@@ -120,6 +148,15 @@ const statusDesc = document.getElementById('game-status-desc');
 const startBtn = document.getElementById('start-btn');
 const hintEl = document.getElementById('game-controls-hint');
 
+/**
+ * Opens the game overlay for the given game type, showing the
+ * appropriate game board (canvas, iframe, or custom element)
+ * and a "start" prompt.
+ *
+ * @param {string} gameType - Game identifier ("snake", "tictactoe",
+ *                             "reflex", "breaker", "match", "highlow",
+ *                             "solitaire", "cubecombat", "sketchycasino").
+ */
 function launchGame(gameType) {
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
@@ -130,7 +167,6 @@ function launchGame(gameType) {
     statusDesc.textContent = "Press start to begin.";
     startBtn.classList.remove('hidden');
 
-    
     canvas.classList.add('hidden');
     tttBoard.classList.add('hidden');
     memoryBoard.classList.add('hidden');
@@ -187,24 +223,28 @@ function launchGame(gameType) {
         hintEl.innerHTML = 'Physics Arena';
         iframe.classList.remove('hidden');
         iframe.src = 'games/full/cube-combat.html';
-        
+
         startBtn.classList.add('hidden');
         statusTitle.textContent = "";
         statusDesc.textContent = "";
-        uiLayer.classList.add('hidden'); 
+        uiLayer.classList.add('hidden');
     } else if (gameType === 'sketchycasino') {
         titleEl.innerHTML = '<i class="fa-solid fa-dice text-red-400 mr-2"></i> SKETCHY CASINO';
         hintEl.innerHTML = 'Try Your Luck';
         iframe.classList.remove('hidden');
         iframe.src = 'games/full/sketchy-casino.html';
-        
+
         startBtn.classList.add('hidden');
         statusTitle.textContent = "";
         statusDesc.textContent = "";
-        uiLayer.classList.add('hidden'); 
+        uiLayer.classList.add('hidden');
     }
 }
 
+/**
+ * Closes the game overlay, stops any running game loop, and
+ * clears the iframe source.
+ */
 function closeGame() {
     overlay.classList.add('hidden');
     overlay.classList.remove('flex');
@@ -215,6 +255,8 @@ function closeGame() {
         iframe.src = '';
     }
 }
+
+/* ---- Start button dispatches to the correct game engine ---- */
 
 startBtn.addEventListener('click', () => {
     uiLayer.classList.add('hidden');
@@ -227,7 +269,15 @@ startBtn.addEventListener('click', () => {
     if (activeGame === 'solitaire') initSolitaire();
 });
 
+/* ============================================================
+ * Game Engine: Cyber Snake
+ * ============================================================ */
 
+/**
+ * Launches the Snake game on the shared canvas element.
+ * Arrow keys and touch-swipe control the direction; the snake
+ * grows when it eats red food pellets.
+ */
 function startSnake() {
     let snake = [{ x: 10, y: 10 }];
     let food = { x: 15, y: 15 };
@@ -235,10 +285,12 @@ function startSnake() {
     let dy = 0;
     let score = 0;
     let gridSize = 20;
-    let tileCount = 20; 
+    let tileCount = 20;
     let speed = 100;
 
     draw();
+
+    /* ---- Keyboard input ---- */
 
     const handleKey = (e) => {
         if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -1; }
@@ -247,6 +299,8 @@ function startSnake() {
         if (e.key === 'ArrowRight' && dx === 0) { dx = 1; dy = 0; }
     };
     document.addEventListener('keydown', handleKey);
+
+    /* ---- Touch swipe input ---- */
 
     let touchStartX = 0;
     let touchStartY = 0;
@@ -273,6 +327,8 @@ function startSnake() {
         }
     }
 
+    /* ---- Core game loop ---- */
+
     function gameLoop() {
         const head = { x: snake[0].x + dx, y: snake[0].y + dy };
         if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
@@ -297,6 +353,8 @@ function startSnake() {
         }
         draw();
     }
+
+    /* ---- Canvas render ---- */
 
     function draw() {
         ctx.fillStyle = '#0f172a';
@@ -335,7 +393,17 @@ function startSnake() {
     }
 }
 
+/* ============================================================
+ * Game Engine: Neon Tic-Tac-Toe
+ * ============================================================ */
 
+/**
+ * Initialises the Tic-Tac-Toe board. When `playable` is true the
+ * user can click cells; otherwise the board is displayed frozen.
+ * The computer (O) makes random moves after the player (X).
+ *
+ * @param {boolean} playable - Whether the board accepts input.
+ */
 function initTicTacToe(playable) {
     tttBoard.innerHTML = '';
     let board = ['', '', '', '', '', '', '', '', ''];
@@ -369,6 +437,8 @@ function initTicTacToe(playable) {
         }
     }
 
+    /* ---- AI picks a random available cell ---- */
+
     function aiMove() {
         if (!gameActive) return;
         let available = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
@@ -388,6 +458,8 @@ function initTicTacToe(playable) {
             }
         }
     }
+
+    /* ---- Win condition check ---- */
 
     function checkWin() {
         const wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
@@ -411,7 +483,15 @@ function initTicTacToe(playable) {
     }
 }
 
+/* ============================================================
+ * Game Engine: Reflex Tester
+ * ============================================================ */
 
+/**
+ * Launches the reflex-testing mini-game. After a random delay
+ * the screen turns green; the player must click as fast as
+ * possible. Clicking early (while red) counts as a fault.
+ */
 function startReflex() {
     let state = 'waiting';
     let startTime = 0;
@@ -456,7 +536,15 @@ function startReflex() {
     }
 }
 
+/* ============================================================
+ * Game Engine: Neon Breaker
+ * ============================================================ */
 
+/**
+ * Launches the Breakout-style brick-breaker. The player controls
+ * a paddle with arrow keys or touch to bounce a ball and destroy
+ * all bricks. Each brick colour is determined by its column.
+ */
 function startBreaker() {
     let paddleH = 10, paddleW = 75, paddleX = (canvas.width - paddleW) / 2;
     let rightPressed = false, leftPressed = false;
@@ -576,7 +664,17 @@ function startBreaker() {
     draw();
 }
 
+/* ============================================================
+ * Game Engine: Cyber Match (Memory)
+ * ============================================================ */
 
+/**
+ * Initialises the memory-match card game. The player flips pairs
+ * of cards to find matching icons. When `playable` is true the
+ * board accepts clicks.
+ *
+ * @param {boolean} playable - Whether the board accepts input.
+ */
 function initMemoryMatch(playable) {
     memoryBoard.innerHTML = '';
     const icons = ['fa-ghost', 'fa-gamepad', 'fa-heart', 'fa-bolt', 'fa-star', 'fa-bomb', 'fa-robot', 'fa-dragon'];
@@ -645,11 +743,22 @@ function initMemoryMatch(playable) {
     }
 }
 
+/* ============================================================
+ * Game Engine: Neon High-Low
+ * ============================================================ */
 
+/**
+ * Initialises the High-Low card guessing game. The player sees a
+ * card and guesses whether the next card will be higher or lower.
+ * A correct guess increments the streak; a wrong guess ends the
+ * game.
+ *
+ * @param {boolean} playable - Whether input buttons are active.
+ */
 function initHighLow(playable) {
     let deck = [], score = 0, currentCard = null;
     const suits = ['♥', '♦', '♣', '♠'];
-    const values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; 
+    const values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
     function createDeck() {
         deck = [];
@@ -663,7 +772,6 @@ function initHighLow(playable) {
         }
         for (let i = deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
     }
@@ -711,7 +819,7 @@ function initHighLow(playable) {
         document.getElementById('hl-card-display').innerHTML = `<div class="text-red-500 flex flex-col items-center"><span>A</span><span class="text-6xl">♥</span></div>`;
     }
 
-    
+    /* Clone buttons to remove old event listeners and attach fresh ones */
     const btnHigh = document.getElementById('hl-higher');
     const btnLow = document.getElementById('hl-lower');
     const newHigh = btnHigh.cloneNode(true);
@@ -725,12 +833,21 @@ function initHighLow(playable) {
     }
 }
 
+/* ============================================================
+ * Game Engine: Cyber Solitaire (Klondike)
+ * ============================================================ */
 
+/**
+ * Initialises a simplified Klondike Solitaire game. The player
+ * can click face-up tableau cards to move them to the foundation
+ * piles or to other tableau columns in descending alternating
+ * colours. The stock pile deals cards to the talon.
+ */
 function initSolitaire() {
     let deck = [], tableau = [[], [], [], [], [], [], []], foundations = [[], [], [], []], stock = [], talon = [];
     let selectedCard = null;
 
-    const suits = ['♥', '♦', '♣', '♠']; 
+    const suits = ['♥', '♦', '♣', '♠'];
     const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
     function createDeck() {
@@ -773,11 +890,9 @@ function initSolitaire() {
     }
 
     function render() {
-        
         const talonHTML = talon.length > 0 ? getCardHTML({ ...talon[talon.length - 1], faceUp: true }) : '';
         document.getElementById('sol-talon').innerHTML = talonHTML;
 
-        
         for (let i = 0; i < 4; i++) {
             const fd = foundations[i];
             const el = document.querySelector(`[data-type="foundation"][data-id="${i}"]`);
@@ -785,7 +900,6 @@ function initSolitaire() {
             else el.innerHTML = `<i class="fa-solid fa-${['heart', 'diamond', 'clover', 'spa'][i]} opacity-20"></i>`;
         }
 
-        
         const tabEl = document.getElementById('sol-tableau');
         tabEl.innerHTML = '';
         tableau.forEach((col, cIdx) => {
@@ -805,22 +919,20 @@ function initSolitaire() {
         });
     }
 
+    /* ---- Exposed on window so inline onclick handlers work ---- */
+
     window.solCardClick = (id) => {
-        
         let loc = findCard(id);
         if (!loc) return;
 
-        
         if (loc.place === 'talon') {
             handleSelection(loc.card, 'talon');
             return;
         }
-        
+
         if (loc.place === 'tableau') {
-            
             if (loc.card.faceUp) handleSelection(loc.card, 'tableau', loc.colIdx);
             else if (loc.isLast) {
-                
                 loc.card.faceUp = true;
                 render();
             }
@@ -832,6 +944,8 @@ function initSolitaire() {
             tryMove(selectedCard, 'tableau', colIdx);
         }
     };
+
+    /* ---- Stock / Talon interaction ---- */
 
     document.getElementById('sol-stock').onclick = () => {
         if (stock.length > 0) {
@@ -847,6 +961,8 @@ function initSolitaire() {
         render();
     };
 
+    /* ---- Card location helpers ---- */
+
     function findCard(id) {
         if (talon.length && talon[talon.length - 1].id === id) return { place: 'talon', card: talon[talon.length - 1] };
         for (let i = 0; i < 7; i++) {
@@ -859,25 +975,19 @@ function initSolitaire() {
     }
 
     function handleSelection(card, place, colIdx) {
-        
         if (selectedCard && selectedCard.id === card.id) {
             selectedCard = null;
             render();
             return;
         }
 
-        
         if (selectedCard) {
             if (place === 'tableau') tryMove(selectedCard, 'tableau', colIdx);
-            
             return;
         }
 
-        
-        
         if (tryAutoFoundation(card, place, colIdx)) return;
 
-        
         selectedCard = card;
         render();
     }
@@ -885,14 +995,13 @@ function initSolitaire() {
     function tryAutoFoundation(card, place, colIdx) {
         for (let i = 0; i < 4; i++) {
             let fd = foundations[i];
-            
+
             if (fd.length === 0) {
                 if (card.val === 1) {
                     doMove(card, place, colIdx, 'foundation', i);
                     return true;
                 }
             } else {
-                
                 let top = fd[fd.length - 1];
                 if (top.suit === card.suit && card.val === top.val + 1) {
                     doMove(card, place, colIdx, 'foundation', i);
@@ -906,12 +1015,12 @@ function initSolitaire() {
     function tryMove(card, toPlace, toIdx) {
         if (toPlace === 'tableau') {
             let destCol = tableau[toIdx];
-            
+
             if (destCol.length === 0) {
                 if (card.val === 13) doMove(card, findCard(card.id).place, findCard(card.id).colIdx, 'tableau', toIdx);
             } else {
                 let top = destCol[destCol.length - 1];
-                
+
                 if (top.color !== card.color && top.val === card.val + 1) {
                     doMove(card, findCard(card.id).place, findCard(card.id).colIdx, 'tableau', toIdx);
                 }
@@ -922,7 +1031,6 @@ function initSolitaire() {
     }
 
     function doMove(card, fromPlace, fromIdx, toPlace, toIdx) {
-        
         let movingCards = [];
         if (fromPlace === 'talon') {
             movingCards.push(talon.pop());
@@ -930,14 +1038,13 @@ function initSolitaire() {
             let col = tableau[fromIdx];
             let cIdx = col.findIndex(c => c.id === card.id);
             movingCards = col.splice(cIdx);
-            
+
             if (col.length > 0) col[col.length - 1].faceUp = true;
         }
 
-        
         if (toPlace === 'foundation') {
             foundations[toIdx].push(movingCards[0]);
-            
+
             if (foundations.every(f => f.length === 13)) {
                 setTimeout(() => {
                     uiLayer.classList.remove('hidden');

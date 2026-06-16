@@ -1,9 +1,21 @@
+/* ============================================================
+ * CheeseMan Games - Tailwind CSS Custom Configuration
+ * ============================================================
+ * Extends Tailwind's default theme with project-specific
+ * fonts, color-scheme CSS variable proxies, custom animations,
+ * and keyframes used throughout the application.
+ * ============================================================ */
+
 tailwind.config = {
     theme: {
         extend: {
+
+            /* ---- Custom Font Family ---- */
             fontFamily: {
                 sans: ['Outfit', 'sans-serif'],
             },
+
+            /* ---- Custom Color Scheme ---- */
             colors: {
                 cheeseman: {
                     base: 'var(--color-base)',
@@ -15,6 +27,8 @@ tailwind.config = {
                     content: 'var(--text-main)',
                 }
             },
+
+            /* ---- Custom Animations ---- */
             animation: {
                 'float': 'float 6s ease-in-out infinite',
                 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -24,6 +38,8 @@ tailwind.config = {
                 'shimmer': 'shimmer 3s linear infinite',
                 'scale-up': 'scaleUp 0.3s ease-out forwards',
             },
+
+            /* ---- Custom Keyframes ---- */
             keyframes: {
                 shimmer: {
                     'from': { backgroundPosition: '0 0' },
@@ -50,6 +66,7 @@ tailwind.config = {
                     '100%': { transform: 'scale(1)', opacity: '1' },
                 }
             }
+
         }
     }
 }

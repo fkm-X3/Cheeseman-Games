@@ -1,51 +1,68 @@
+/* ============================================================
+ * CheeseMan Games - Legacy / Supplemental Styles
+ * ============================================================
+ * Additional styles for game components and utilities that are
+ * not covered by the main index.css or Tailwind configuration.
+ * ============================================================ */
+
+/* ---- Body Base ---- */
 body {
-        
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a; 
-            color: #e2e8f0; 
-        }
+    font-family: 'Inter', sans-serif;
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b; 
-        }
+/* ---- Custom Scrollbar ---- */
+::-webkit-scrollbar {
+    width: 8px;
+}
 
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out forwards;
-        }
+::-webkit-scrollbar-track {
+    background: #1e293b;
+}
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
 
-        .ttt-cell {
-            transition: all 0.2s;
-        }
-        .ttt-cell:hover:not(:disabled) {
-            background-color: #334155;
-        }
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
 
-        @keyframes marquee {
-            0%   { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
+/* ---- Fade-In Animation ---- */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-        .animate-marquee {
-            display: inline-block;
-            animation: marquee 25s linear infinite;
-        }
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+/* ---- Glass Panel Utility ---- */
+.glass-panel {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Tic-Tac-Toe Cell ---- */
+.ttt-cell {
+    transition: all 0.2s;
+}
+
+.ttt-cell:hover:not(:disabled) {
+    background-color: #334155;
+}
+
+/* ---- Marquee Animation ---- */
+@keyframes marquee {
+    0%   { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 25s linear infinite;
+}
